@@ -1,135 +1,115 @@
-####################################################################################
-# compiler settings 
-####################################################################################
+################################################################################
+# Global Project Settings
+################################################################################
 
-ifndef PREFIX
-PREFIX := 
-#C:/workspace/Compiler/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-
+PROJECT_NAME := xmake
+
+ifeq ($(OS),Windows_NT)
+	PROJECT_NAME := $(PROJECT_NAME).exe
 endif
 
-CC := $(PREFIX)gcc
-CPP := $(PREFIX)g++
-ARCHIVE := $(PREFIX)ar
-OBJCOPY := $(PREFIX)objcopy
+CC = g++
+LD = ld
+AR = ar
+CP = objcopy
+OD = objdump
+SIZE = size
 
-####################################################################################
-# output directory
-# TODO this depends on the build configuration (debug/release)
-####################################################################################
+################################################################################
+# Directories
+################################################################################
 
-OBJDIR := .bin
-FILENAME := xmake
-BINARY := $(OBJDIR)/$(FILENAME).exe
+BIN_DIR := .bin
+OBJECT_DIR = $(BIN_DIR)/Debug
 
-####################################################################################
-# create the INCLUDES variable by adding the included variabled from above
-####################################################################################
+################################################################################
+# Include Directories
+################################################################################
 
 INCLUDES := \
 	-Iinclude \
 	-Ilib/ArduinoJson/src
 
-####################################################################################
-# project specific defines
-####################################################################################
+################################################################################
+# Source Files
+################################################################################
 
-DEFINES := 
+SRC_DIRS = 	src 
 
-####################################################################################
-# get compiler settings 
-# CC CPP ARCHIVE commands
-# C_SRCS, CPP_SRCS, C_OBJS
-# CFLAGS CPPFLAGS
-####################################################################################
+SRCS = $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.cpp) $(wildcard $(dir)/*.c) $(wildcard $(dir)/*.s))
 
-#include $(ESP32_FRAMEWORK_DIR)compiler.mk
-# include compiler.mk
+################################################################################
+# Object Files
+################################################################################
 
-CFLAGS := -Wall -Wextra $(INCLUDES) $(DEFINES) 
-CPPFLAGS := -Wall -Wextra $(INCLUDES) $(DEFINES)
+OBJS = $(patsubst %.cpp, $(OBJECT_DIR)/%.o, $(SRCS)) \
+       $(patsubst %.c, $(OBJECT_DIR)/%.o, $(SRCS)) \
+       $(patsubst %.s, $(OBJECT_DIR)/%.o, $(SRCS))
 
-####################################################################################
-# Find all source files
-####################################################################################
+# extract only .o files for linker
+LINK_OBJS = $(filter %.o, $(OBJS))
 
-rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
+################################################################################
+# Flags
+################################################################################
 
-# if you want to change the source directory change src/ to the new source directory
-C_SRCS := $(call rwildcard,src/,*.c)
-CPP_SRCS := $(call rwildcard,src/,*.cpp)
-
-####################################################################################
-# This will generate the list of object files
-####################################################################################
-
-C_OBJS := $(patsubst %.c, $(OBJDIR)/%.o,$(C_SRCS))
-CPP_OBJS := $(patsubst %.cpp, $(OBJDIR)/%.o,$(CPP_SRCS))
-
-####################################################################################
-# create linker flags
-####################################################################################
-
-LINK_FLAGS := 
-# -Wl,--gc-sections -Wno-frame-address -mlongcalls
-# LINK_FLAGS += -fno-rtti -fno-lto -Wl,--wrap=esp_log_write -Wl,--wrap=esp_log_writev 
-# LINK_FLAGS += -Wl,--wrap=log_printf -Wl,--wrap=longjmp -Wl,--undefined=uxTopUsedPriority 
-# LINK_FLAGS += -Wl,--cref -Wl,-Map=$(OBJDIR)/$(FILENAME)_FW$(VERSION_MAYOR)-$(VERSION_MINOR)-$(VERSION_PATCH).map
+ALL_FLAGS = -g -std=c++23 -Wall -Wextra 
+LINKER_FLAGS = $(PREDEFINED_SYMBOLS)
+COMPILER_OPTIONS = $(ALL_FLAGS) $(PREDEFINED_SYMBOLS) $(INCLUDES)
+ASSEMBLER_FLAGS = $(ALL_FLAGS) $(PREDEFINED_SYMBOLS) $(INCLUDES)
+CPP_FLAGS = $(ALL_FLAGS) $(GPP_MISRA_RULES) $(PREDEFINED_SYMBOLS) $(INCLUDES)
 
 ####################################################################################
 # auto dependency generation
 ####################################################################################
 
-DEPFILES := $(C_OBJS:.o=.d) $(CPP_OBJS:.o=.d)
+DEPFLAGS = -MT $@ -MMD -MP -MF $(OBJECT_DIR)/$*.d
+CPP_DEPFILES = $(filter %.d, $(patsubst %.cpp, $(OBJECT_DIR)/%.d, $(SRCS)) )
 
--include $(DEPFILES)
+-include $(CPP_DEPFILES)
 
-####################################################################################
-# build targets
-####################################################################################
+################################################################################
+# Default Target
+################################################################################
 
-all: $(BINARY)
+all: $(BIN_DIR)/$(PROJECT_NAME)
 
-$(BINARY): $(C_OBJS) $(CPP_OBJS)
-	@echo "linking " $(BINARY)
-	$(CPP) -o $(BINARY) $(C_OBJS) $(CPP_OBJS) $(LINK_FLAGS)
-	@echo "copying xmakefile.json to $(OBJDIR)"
-	@cp -f xmakefile.json $(OBJDIR)/xmakefile.json 
+################################################################################
+# Target Generation
+################################################################################
 
-$(OBJDIR)/%.o: %.c
-	@test -d $(@D) || mkdir -p $(@D)
-	@echo "building " $@
-	$(CC) $(CFLAGS) -g -c $< -o $@ -MMD -MF $(@:.o=.d)
+$(BIN_DIR)/$(PROJECT_NAME): $(OBJS)
+	@mkdir -p "$(dir $@)" 
+	@echo Building target: $@
+	$(CC) -o $@ $(LINK_OBJS) $(LINKER_FLAGS) $(LIBS) $(INCLUDES)
+	@echo Finished building target: $@
+	@echo "copying xmakefile.json to $(BIN_DIR)"
+	@cp -f xmakefile.json $(BIN_DIR)/xmakefile.json 
 
-$(OBJDIR)/%.o: %.cpp
-	@test -d $(@D) || mkdir -p $(@D)
-	@echo "building " $@
-	$(CPP) $(CPPFLAGS) -g -c $< -o $@ -MMD -MF $(@:.o=.d)
+$(OBJECT_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(DEPFLAGS) $(COMPILER_OPTIONS) $(CPP_FLAGS) -c -o $@ $<
+	@echo Finished building: $@
+
+$(OBJECT_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(DEPFLAGS) $(COMPILER_OPTIONS) -c -o $@ $<
+	@echo Finished building: $@
+
+$(OBJECT_DIR)/%.o: %.s
+	@mkdir -p $(dir $@)
+	$(CC) $(DEPFLAGS) $(ASSEMBLER_FLAGS) -c -o $@ $<
+	@echo Finished building: $@
 
 ####################################################################################
 
 info:
-	@echo $(BINARY)
-	@echo
-	@echo "INCLUDES"
-	@echo $(INCLUDES)
-	@echo
-	@echo "C_OBJS"
-	@echo $(C_OBJS)
-	@echo "C_SRCS"
-	@echo $(C_SRCS)
-	@echo
-	@echo "CPP_OBJS"
-	@echo $(CPP_OBJS)
-	@echo "CPP_SRCS"
-	@echo $(CPP_SRCS)
-	@echo
-	@echo "CFLAGS"
-	@echo $(CFLAGS)
-	@echo "CPPFLAGS"
-	@echo $(CPPFLAGS)
-	@echo
-	@echo "LIBRARIES"
-	@echo $(LIBRARIES)
+	@echo "SRCS"
+	@echo $(SRCS)
+	@echo "OBJS"
+	@echo $(OBJS)
+	@echo "CPP_DEPFILES"
+	@echo $(CPP_DEPFILES)
 
 ####################################################################################
 
@@ -139,7 +119,7 @@ run:
 ####################################################################################
 
 clean:
-	rm -rf $(OBJDIR) $(DEPFILES)
+	rm -rf $(BIN_DIR) $(DEPFILES)
 
 ####################################################################################
 
