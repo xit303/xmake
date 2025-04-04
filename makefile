@@ -50,6 +50,13 @@ OBJS = $(patsubst %.cpp, $(OBJECT_DIR)/%.o, $(SRCS)) \
 LINK_OBJS = $(filter %.o, $(OBJS))
 
 ################################################################################
+# Predefined Symbols
+################################################################################
+
+PREDEFINED_SYMBOLS = \
+	-DDEBUG
+
+################################################################################
 # Flags
 ################################################################################
 
@@ -83,7 +90,6 @@ $(BIN_DIR)/$(PROJECT_NAME): $(OBJS)
 	@echo Building target: $@
 	$(CC) -o $@ $(LINK_OBJS) $(LINKER_FLAGS) $(LIBS) $(INCLUDES)
 	@echo Finished building target: $@
-	@echo "copying xmakefile.json to $(BIN_DIR)"
 	@cp -f xmakefile.json $(BIN_DIR)/xmakefile.json 
 
 $(OBJECT_DIR)/%.o: %.cpp

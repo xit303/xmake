@@ -88,5 +88,52 @@ bool XMakefileParser::Parse(const std::string &path)
     }
 
     file.close();
+
+#ifdef DEBUG
+    // print the parsed data for debugging
+    std::cout << "Parsed xmakefile:" << std::endl;
+    std::cout << "Name: " << xmakefile.xmakeFileName << std::endl;
+    std::cout << "Version: " << xmakefile.xmakeFileVersion << std::endl;
+    std::cout << "Description: " << xmakefile.xmakeFileDescription << std::endl;
+    std::cout << "Author: " << xmakefile.xmakeFileAuthor << std::endl;
+    std::cout << "License: " << xmakefile.xmakeFileLicense << std::endl;
+    std::cout << "Configurations:" << std::endl;
+
+    for (const auto &config : xmakefile.configs)
+    {
+        std::cout << "  Name: " << config.Name << std::endl;
+        std::cout << "  Build Type: " << config.BuildType << std::endl;
+        std::cout << "  Build Dir: " << config.BuildDir << std::endl;
+        std::cout << "  Output Filename: " << config.OutputFilename << std::endl;
+        std::cout << "  Compiler Path: " << config.CompilerPath << std::endl;
+        std::cout << "  Compiler: " << config.Compiler << std::endl;
+        std::cout << "  Compiler Flags: " << config.CompilerFlags << std::endl;
+        std::cout << "  Linker Flags: " << config.LinkerFlags << std::endl;
+        std::cout << "  Include Paths: ";
+        for (const auto &path : config.IncludePaths)
+            std::cout << path << " ";
+        std::cout << std::endl;
+
+        // Print library paths
+        std::cout << "  Library Paths: ";
+        for (const auto &path : config.LibraryPaths)
+            std::cout << path << " ";
+        std::cout << std::endl;
+
+        // Print libraries
+        std::cout << "  Libraries: ";
+        for (const auto &lib : config.Libraries)
+            std::cout << lib << " ";
+        std::cout << std::endl;
+
+        // Print source paths
+        std::cout << "  Source Paths: ";
+        for (const auto &path : config.SourcePaths)
+            std::cout << path << " ";
+        std::cout << std::endl;
+    }
+    std::cout << "Parsed successfully." << std::endl;
+#endif
+
     return true;
 }
