@@ -45,6 +45,9 @@ DEFINES :=
 #include $(ESP32_FRAMEWORK_DIR)compiler.mk
 # include compiler.mk
 
+CFLAGS := -Wall -Wextra $(INCLUDES) $(DEFINES) 
+CPPFLAGS := -Wall -Wextra $(INCLUDES) $(DEFINES)
+
 ####################################################################################
 # Find all source files
 ####################################################################################
@@ -89,6 +92,8 @@ all: $(BINARY)
 $(BINARY): $(C_OBJS) $(CPP_OBJS)
 	@echo "linking " $(BINARY)
 	$(CPP) -o $(BINARY) $(C_OBJS) $(CPP_OBJS) $(LINK_FLAGS)
+	@echo "copying xmakefile.json to $(OBJDIR)"
+	@cp -f xmakefile.json $(OBJDIR)/xmakefile.json 
 
 $(OBJDIR)/%.o: %.c
 	@test -d $(@D) || mkdir -p $(@D)
