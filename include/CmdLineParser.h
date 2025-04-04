@@ -9,8 +9,11 @@ private:
     std::map<std::string, std::string> registeredOptions;
     std::map<std::string, std::string> options;
 
+    std::string programName;
+    std::string programVersion;
+
 public:
-    CmdLineParser();
+    CmdLineParser(const std::string &programName, const std::string &programVersion);
     bool Parse(int argc, char *argv[]);
 
     bool IsOptionSet(const std::string &option) const;

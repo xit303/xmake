@@ -1,9 +1,9 @@
 #include "CmdLineParser.h"
-#include "Version.h"
 #include <iostream>
 #include <algorithm>
 
-CmdLineParser::CmdLineParser()
+CmdLineParser::CmdLineParser(const std::string &programName, const std::string &programVersion)
+    : programName(programName), programVersion(programVersion)
 {
 }
 
@@ -81,8 +81,11 @@ void CmdLineParser::RegisterOption(const std::string &option, const std::string 
 
 void CmdLineParser::PrintHelp() const
 {
-    std::cout << std::endl << "xmake version " << VERSION_STRING << std::endl << std::endl;
-    std::cout << "Usage: xmake [options]" << std::endl << std::endl;
+    std::cout << std::endl << programName
+              << " version " << programVersion << std::endl
+              << std::endl;
+    std::cout << "Usage: xmake [options]" << std::endl
+              << std::endl;
     std::cout << "Options:" << std::endl;
 
     for (const auto &option : registeredOptions)

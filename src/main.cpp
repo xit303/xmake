@@ -5,7 +5,7 @@
 
 int main(int argc, char **argv)
 {
-    CmdLineParser parser;
+    CmdLineParser parser("xmake", VERSION_STRING);
     parser.RegisterOption("-h", "Show help message");
     parser.RegisterOption("--version", "Show version information");
     parser.RegisterOption("-v", "Enable verbose output");
