@@ -74,8 +74,6 @@ CPP_FLAGS = $(ALL_FLAGS) $(GPP_MISRA_RULES) $(PREDEFINED_SYMBOLS) $(INCLUDES)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(OBJECT_DIR)/$*.d
 CPP_DEPFILES = $(filter %.d, $(patsubst %.cpp, $(OBJECT_DIR)/%.d, $(SRCS)) )
 
--include $(CPP_DEPFILES)
-
 ################################################################################
 # Default Target
 ################################################################################
@@ -115,6 +113,8 @@ info:
 	@echo $(SRCS)
 	@echo "OBJS"
 	@echo $(OBJS)
+	@echo "LINK_OBJS"
+	@echo $(LINK_OBJS)
 	@echo "CPP_DEPFILES"
 	@echo $(CPP_DEPFILES)
 
@@ -131,3 +131,5 @@ clean:
 ####################################################################################
 
 .PHONY: all clean debug src lib run
+
+-include $(CPP_DEPFILES)
