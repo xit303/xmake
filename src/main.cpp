@@ -30,18 +30,18 @@ int main(int argc, char **argv)
     {
         std::cout << "Verbose output enabled" << std::endl;
     }
+    
+    std::string xmakefilePath = "xmakefile.json";
+
     if (parser.IsOptionSet("--xmakefile"))
     {
-        std::string xmakefile = parser.GetOptionValue("--xmakefile");
-        std::cout << "Using xmakefile: " << xmakefile << std::endl;
+        xmakefilePath = parser.GetOptionValue("--xmakefile", xmakefilePath);
+        std::cout << "Using xmakefile: " << xmakefilePath << std::endl;
     }
     else
     {
         std::cout << "No xmakefile specified, using default." << std::endl;
     }
-
-    // Initialize the XMakefileParser with the xmakefile path
-    std::string xmakefilePath = parser.GetOptionValue("--xmakefile", "xmakefile.json");
 
     XMakefileParser xmakefileParser;
     if (!xmakefileParser.Parse(xmakefilePath))
@@ -49,6 +49,8 @@ int main(int argc, char **argv)
         std::cerr << "Error: Failed to parse xmakefile." << std::endl;
         return 1;
     }
+
+    std::cout << "Done" << std::endl;
 
     return 0;
 }
