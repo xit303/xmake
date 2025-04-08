@@ -2,6 +2,7 @@
 #include "Version.h"
 #include "CmdLineParser.h"
 #include "XMakefileParser.h"
+#include <filesystem>
 
 int main(int argc, char **argv)
 {
@@ -30,8 +31,8 @@ int main(int argc, char **argv)
     {
         std::cout << "Verbose output enabled" << std::endl;
     }
-    
-    std::string xmakefilePath = "xmakefile.json";
+
+    std::string xmakefilePath = std::filesystem::current_path().string() + "/xmakefile.json";
 
     if (parser.IsOptionSet("--xmakefile"))
     {
