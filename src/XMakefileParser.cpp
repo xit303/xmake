@@ -129,7 +129,7 @@ void XMakefileParser::CreateBuildList()
     // Create the build string for every source file
     for (const auto &sourceFile : sourceFiles)
     {
-        std::string buildString = currentConfig.CompilerPath + "/" + currentConfig.Compiler + " ";
+        std::string buildString = (currentConfig.CompilerPath.empty() ? "": currentConfig.CompilerPath + "/") + currentConfig.Compiler + " ";
 
         // check file extension to add specific compiler flags
         std::string ext = sourceFile.substr(sourceFile.find_last_of("."));
@@ -169,7 +169,7 @@ void XMakefileParser::CreateBuildList()
     }
 
     // Create the linker string
-    linkString = currentConfig.CompilerPath + "/" + currentConfig.Linker;
+    linkString = (currentConfig.CompilerPath.empty() ? "" : currentConfig.CompilerPath + "/") + currentConfig.Linker;
 
     // Add object files to the linker string
     for (const auto &objectFile : objectFiles)
