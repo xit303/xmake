@@ -29,7 +29,7 @@ public:
 
         for (const BuildStruct &buildStruct : parser.GetBuildStructures())
         {
-            threads.emplace_back([this, buildStruct]() -> bool
+            threads.emplace_back([this, buildStruct = buildStruct]() -> bool
             {
                 if (buildStruct.empty())
                 {
