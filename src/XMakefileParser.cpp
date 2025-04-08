@@ -219,19 +219,6 @@ void XMakefileParser::CreateBuildList()
 #endif
 }
 
-const BuildStruct &XMakefileParser::GetNextBuildStruct()
-{
-    static const BuildStruct empty;
-
-    if (buildStructureIndex >= buildStructures.size())
-    {
-        // reached the end of the build strings
-        return empty;
-    }
-
-    return buildStructures[buildStructureIndex++];
-}
-
 const std::string &XMakefileParser::GetLinkerString()
 {
     return linkString;

@@ -3,6 +3,8 @@
 #include "XMakefileParser.h"
 #include <iostream>
 #include <filesystem>
+#include <thread>
+#include <vector>
 
 class XMake
 {
@@ -21,38 +23,50 @@ public:
     {
         parser.CreateBuildList();
 
-        while (true)
+        // build all source files in parallel
+
+        std::vector<std::thread> threads;
+
+        for (const BuildStruct &buildStruct : parser.GetBuildStructures())
         {
-            const BuildStruct &buildStruct = parser.GetNextBuildStruct();
-
-            // Check if the build structure is empty
-            if (buildStruct.empty())
+            threads.emplace_back([this, buildStruct]() -> bool
             {
-                // No more build structures to process
-                break;
-            }
+                if (buildStruct.empty())
+                {
+                    return false;
+                }
 
-            std::cout << "Building: " << buildStruct.objectFile << " ... ";
+                std::cout << "Building: " << buildStruct.objectFile << " ... ";
 
-            // get directory of the source file
-            std::string sourceDir = buildStruct.objectFile.substr(0, buildStruct.objectFile.find_last_of("/\\"));
+                // get directory of the source file
+                std::string sourceDir = buildStruct.objectFile.substr(0, buildStruct.objectFile.find_last_of("/\\"));
 
-            // create the directory if it does not exist
-            if (!std::filesystem::exists(sourceDir))
+                // create the directory if it does not exist
+                if (!std::filesystem::exists(sourceDir))
+                {
+                    std::filesystem::create_directories(sourceDir);
+                }
+
+                // Execute the build command
+                int result = system(buildStruct.buildString.c_str());
+                if (result != 0)
+                {
+                    std::cerr << "failed" << std::endl;
+                    return false;
+                }
+
+                std::cout << "done" << std::endl;
+                return true;
+            });
+        }
+
+        // Wait for all threads to finish
+        for (auto &thread : threads)
+        {
+            if (thread.joinable())
             {
-                std::filesystem::create_directories(sourceDir);
+                thread.join();
             }
-            // get the output file name
-
-            // Execute the build command
-            int result = system(buildStruct.buildString.c_str());
-            if (result != 0)
-            {
-                std::cerr << "failed" << std::endl;
-                return false;
-            }
-
-            std::cout << "done" << std::endl;
         }
 
         // After building all source files, link them

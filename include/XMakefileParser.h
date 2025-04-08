@@ -48,6 +48,6 @@ public:
     void CreateBuildList();
     void ResetBuildIndex() { buildStructureIndex = 0; }
     
-    const BuildStruct &GetNextBuildStruct();
+    const std::vector<BuildStruct> &GetBuildStructures() { return buildStructures; }
     const std::string &GetLinkerString();
 };
