@@ -53,8 +53,5 @@ int main(int argc, char **argv)
     }
 
     xmake.Build();
-
-    std::cout << "Done" << std::endl;
-
     return 0;
 }

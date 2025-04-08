@@ -17,8 +17,7 @@
             "cxx_flags": "-std=c++17 -Wall -Wextra -pedantic",
             "linker_flags": "-lm -lstdc++",
             "include_paths": [
-                "include",
-                "src"
+                "include"
             ],
             "source_paths": [
                 ""
