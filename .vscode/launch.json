@@ -11,11 +11,11 @@
             "program": "${workspaceFolder}/.bin/xmake",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/.bin/",
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "preLaunchTask": "Make",
+            "preLaunchTask": "xmake",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
