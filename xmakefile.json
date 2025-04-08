@@ -8,8 +8,8 @@
         {
             "name": "Debug",
             "build_type": "Debug",
-            "build_dir": "build/debug",
-            "output_filename": "my_project_debug",
+            "build_dir": "build",
+            "output_filename": "xmake",
             "compiler_path": "",
             "compiler": "g++",
             "linker": "g++",
@@ -17,10 +17,11 @@
             "cxx_flags": "-std=c++17 -Wall -Wextra -pedantic",
             "linker_flags": "-lm -lstdc++",
             "include_paths": [
-                "include"
+                "../include",
+                "../lib/ArduinoJson/src"
             ],
             "source_paths": [
-                ""
+                "../src/"
             ],
             "exclude_paths": [
             ],

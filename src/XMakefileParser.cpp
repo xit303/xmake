@@ -103,7 +103,7 @@ void XMakefileParser::CreateBuildList()
     // create the build list from the current config
     buildStructureIndex = 0; // Reset the index for build strings
     buildStructures.clear(); // Clear previous build strings
-    linkString.clear();   // Clear previous linker string
+    linkString.clear();      // Clear previous linker string
 
     const std::vector<std::string> extensions = {".cpp", ".c", ".cc", ".cxx", ".m", ".mm"};
 
@@ -129,7 +129,7 @@ void XMakefileParser::CreateBuildList()
     // Create the build string for every source file
     for (const auto &sourceFile : sourceFiles)
     {
-        std::string buildString = (currentConfig.CompilerPath.empty() ? "": currentConfig.CompilerPath + "/") + currentConfig.Compiler + " ";
+        std::string buildString = (currentConfig.CompilerPath.empty() ? "" : currentConfig.CompilerPath + "/") + currentConfig.Compiler + " ";
 
         // check file extension to add specific compiler flags
         std::string ext = sourceFile.substr(sourceFile.find_last_of("."));
@@ -161,7 +161,7 @@ void XMakefileParser::CreateBuildList()
         // replace path if object file with build dir
         if (!currentConfig.BuildDir.empty())
         {
-            std::filesystem::path buildDirPath = currentConfig.BuildDir;
+            std::filesystem::path buildDirPath = currentConfig.BuildDir + "/" + currentConfig.BuildType;
             std::filesystem::path sourceFilePath = sourceFile;
             std::filesystem::path objectFilePath = buildDirPath / sourceFilePath.filename();
 
@@ -197,7 +197,14 @@ void XMakefileParser::CreateBuildList()
     }
 
     // Add output filename
-    linkString += " -o " + currentConfig.OutputFilename;
+    if (!currentConfig.BuildDir.empty() && !currentConfig.BuildType.empty())
+        linkString += " -o " + currentConfig.BuildDir + "/" + currentConfig.BuildType + "/" + currentConfig.OutputFilename;
+    else if (!currentConfig.BuildDir.empty())
+        linkString += " -o " + currentConfig.BuildDir + "/" + currentConfig.OutputFilename;
+    else if (!currentConfig.BuildType.empty())
+        linkString += " -o " + currentConfig.BuildType + "/" + currentConfig.OutputFilename;
+    else
+        linkString += " -o " + currentConfig.OutputFilename;
 
     // Add linker flags
     linkString += " " + currentConfig.LinkerFlags;
@@ -221,8 +228,6 @@ const BuildStruct &XMakefileParser::GetNextBuildStruct()
         // reached the end of the build strings
         return empty;
     }
-
-
 
     return buildStructures[buildStructureIndex++];
 }
