@@ -10,9 +10,9 @@
             "build_type": "Debug",
             "build_dir": "build/debug",
             "output_filename": "my_project_debug",
-            "compiler_path": "C:\\msys64\\ucrt64\\bin\\",
-            "compiler": "gcc",
-            "linker": "gcc",
+            "compiler_path": "",
+            "compiler": "g++",
+            "linker": "g++",
             "c_flags": "-std=c11 -Wall -Wextra -pedantic",
             "cxx_flags": "-std=c++17 -Wall -Wextra -pedantic",
             "linker_flags": "-lm -lstdc++",
@@ -21,7 +21,7 @@
                 "src"
             ],
             "source_paths": [
-                "C:/workspace/xmake/test/src/"
+                ""
             ],
             "exclude_paths": [
             ],
