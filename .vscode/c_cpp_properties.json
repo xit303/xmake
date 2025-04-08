@@ -6,9 +6,7 @@
                 "${workspaceFolder}/**"
             ],
             "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
+                "DEBUG"
             ],
             "compilerPath": "C:\\msys64\\ucrt64\\bin\\gcc.exe", // Update this path to your GCC installation
             "cStandard": "c11",
@@ -21,9 +19,7 @@
                 "${workspaceFolder}/**"
             ],
             "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
+                "DEBUG"
             ],
             "compilerPath": "/usr/bin/gcc", // Update this path to your GCC installation
             "cStandard": "c11",
