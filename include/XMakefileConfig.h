@@ -13,7 +13,10 @@ public:
     std::string OutputFilename;
     std::string CompilerPath;
     std::string Compiler;
-    std::string CompilerFlags;
+    std::string CCompilerFlags;
+    std::string CXXCompilerFlags;
+
+    std::string Linker;
     std::string LinkerFlags;
 
     std::vector<std::string> IncludePaths;
@@ -29,7 +32,9 @@ public:
         OutputFilename = doc["output_filename"].as<std::string>();
         CompilerPath = doc["compiler_path"].as<std::string>();
         Compiler = doc["compiler"].as<std::string>();
-        CompilerFlags = doc["compiler_flags"].as<std::string>();
+        CCompilerFlags = doc["c_flags"].as<std::string>();
+        CXXCompilerFlags = doc["cxx_flags"].as<std::string>();
+        Linker = doc["linker"].as<std::string>();
         LinkerFlags = doc["linker_flags"].as<std::string>();
 
         // Extract include paths

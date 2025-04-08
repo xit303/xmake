@@ -78,7 +78,7 @@ CPP_DEPFILES = $(filter %.d, $(patsubst %.cpp, $(OBJECT_DIR)/%.d, $(SRCS)) )
 # Default Target
 ################################################################################
 
-all: $(BIN_DIR)/$(PROJECT_NAME)
+all: $(BIN_DIR)/$(PROJECT_NAME) copy
 
 ################################################################################
 # Target Generation
@@ -89,7 +89,7 @@ $(BIN_DIR)/$(PROJECT_NAME): $(OBJS)
 	@echo Building target: $@
 	$(CC) -o $@ $(LINK_OBJS) $(LINKER_FLAGS) $(LIBS) $(INCLUDES)
 	@echo Finished building target: $@
-	@cp -f xmakefile.json $(BIN_DIR)/xmakefile.json 
+
 
 $(OBJECT_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
@@ -105,6 +105,11 @@ $(OBJECT_DIR)/%.o: %.s
 	@mkdir -p $(dir $@)
 	$(CC) $(ASM_FLAGS) $(DEPFLAGS) -c -o $@ $<
 	@echo Finished building: $@
+
+####################################################################################
+
+copy:
+	@cp -f xmakefile.json $(BIN_DIR)/xmakefile.json 
 
 ####################################################################################
 

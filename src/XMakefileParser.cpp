@@ -65,7 +65,9 @@ bool XMakefileParser::Parse(const std::string &path)
         std::cout << "  Output Filename: " << config.OutputFilename << std::endl;
         std::cout << "  Compiler Path: " << config.CompilerPath << std::endl;
         std::cout << "  Compiler: " << config.Compiler << std::endl;
-        std::cout << "  Compiler Flags: " << config.CompilerFlags << std::endl;
+        std::cout << "  C Compiler Flags: " << config.CCompilerFlags << std::endl;
+        std::cout << "  C++ Compiler Flags: " << config.CXXCompilerFlags << std::endl;
+        std::cout << "  Linker: " << config.Linker << std::endl;
         std::cout << "  Linker Flags: " << config.LinkerFlags << std::endl;
         std::cout << "  Include Paths: ";
         for (const auto &path : config.IncludePaths)
@@ -109,18 +111,40 @@ void XMakefileParser::CreateBuildList()
     for (const auto &sourcePath : currentConfig.SourcePaths)
     {
         // check if source path is relative or absolute
-        
-
-        
-        
-        FindSources(sourcePath, extensions);
+        if (sourcePath[0] != '/' && sourcePath[1] != ':')
+        {
+            // relative path, convert to absolute
+            std::filesystem::path absPath = std::filesystem::current_path() / sourcePath;
+            FindSources(absPath.string(), extensions);
+        }
+        else
+        {
+            // absolute path
+            FindSources(sourcePath, extensions);
+        }
     }
 
     // Create the build string for every source file
 
     for (const auto &sourceFile : sourceFiles)
     {
-        std::string buildString = currentConfig.CompilerPath + " " + currentConfig.Compiler + " " + currentConfig.CompilerFlags;
+        std::string buildString = currentConfig.CompilerPath + "/" + currentConfig.Compiler + " ";
+
+        // check file extension to add specific compiler flags
+        std::string ext = sourceFile.substr(sourceFile.find_last_of("."));
+        if (ext == ".c")
+        {
+            buildString += currentConfig.CCompilerFlags;
+        }
+        else if (ext == ".cpp" || ext == ".cc" || ext == ".cxx" || ext == ".m" || ext == ".mm")
+        {
+            buildString += currentConfig.CXXCompilerFlags;
+        }
+        else
+        {
+            std::cerr << "Warning: Unknown file extension for file: " << sourceFile << std::endl;
+            continue; // Skip unknown file types
+        }
 
         // Add include paths
         for (const auto &includePath : currentConfig.IncludePaths)
@@ -131,18 +155,18 @@ void XMakefileParser::CreateBuildList()
         // Add source file
         buildString += " " + sourceFile;
 
-        // Add output filename
-        buildString += " -o " + currentConfig.OutputFilename;
+        // create object file name
+        std::string objectFile = sourceFile.substr(0, sourceFile.find_last_of('.')) + ".o";
 
-        // Add linker flags
-        buildString += " " + currentConfig.LinkerFlags;
+        // Add output filename
+        buildString += " -o " + objectFile;
 
         // Store the build string
         buildStrings.push_back(buildString);
     }
 
     // Create the linker string
-    linkString = currentConfig.CompilerPath + " " + currentConfig.Compiler + " " + currentConfig.LinkerFlags;
+    linkString = currentConfig.CompilerPath + "/" + currentConfig.Linker + " " + currentConfig.LinkerFlags;
 
 #ifdef DEBUG
     std::cout << "Build strings:" << std::endl;
@@ -156,10 +180,12 @@ void XMakefileParser::CreateBuildList()
 
 const std::string &XMakefileParser::GetNextBuildString()
 {
+    static const std::string empty;
+
     if (buildStringIndex >= buildStrings.size())
     {
         // reached the end of the build strings
-        return "";
+        return empty;
     }
 
     return buildStrings[buildStringIndex++];
@@ -172,6 +198,13 @@ const std::string &XMakefileParser::GetLinkerString()
 
 void XMakefileParser::FindSources(const std::string &path, const std::vector<std::string> &extensions)
 {
+    // Check if the path is a directory and if it exists
+    if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path))
+    {
+        std::cerr << "Error: Path does not exist or is not a directory: " << path << std::endl;
+        return;
+    }
+
     for (const auto &entry : std::filesystem::directory_iterator(path))
     {
         if (entry.is_directory())
