@@ -3,6 +3,17 @@
 #include "XMakefile.h"
 #include <atomic>
 
+struct BuildStruct
+{
+    std::string buildString;
+    std::string objectFile;
+
+    bool empty() const
+    {
+        return buildString.empty() && objectFile.empty();
+    }
+};
+
 class XMakefileParser
 {
 private:
@@ -11,9 +22,9 @@ private:
     std::string xmakefileName;
     std::string xmakefileDir;
 
-    std::atomic<size_t> buildStringIndex = 0; // Atomic index for build strings to ensure thread safety
+    std::atomic<size_t> buildStructureIndex = 0; // Atomic index for build strings to ensure thread safety
     std::vector<std::string> sourceFiles; // List of source files to be compiled
-    std::vector<std::string> buildStrings;
+    std::vector<BuildStruct> buildStructures;
     std::string linkString;
 
     JsonDocument jsonDoc; // JSON document to hold the parsed content
@@ -31,11 +42,12 @@ public:
     std::string GetXMakefileName() const { return xmakefileName; }
     std::string GetXMakefileDir() const { return xmakefileDir; }
     std::string GetXMakefileContent() const { return xmakefileContent; }
+    std::string GetOutputFilename() const { return currentConfig.OutputFilename; }
     XMakefileConfig GetCurrentConfig() const { return currentConfig; }
 
     void CreateBuildList();
-    void ResetBuildIndex() { buildStringIndex = 0; }
+    void ResetBuildIndex() { buildStructureIndex = 0; }
     
-    const std::string &GetNextBuildString();
+    const BuildStruct &GetNextBuildStruct();
     const std::string &GetLinkerString();
 };

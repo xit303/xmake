@@ -101,8 +101,8 @@ bool XMakefileParser::Parse(const std::string &path)
 void XMakefileParser::CreateBuildList()
 {
     // create the build list from the current config
-    buildStringIndex = 0; // Reset the index for build strings
-    buildStrings.clear(); // Clear previous build strings
+    buildStructureIndex = 0; // Reset the index for build strings
+    buildStructures.clear(); // Clear previous build strings
     linkString.clear();   // Clear previous linker string
 
     const std::vector<std::string> extensions = {".cpp", ".c", ".cc", ".cxx", ".m", ".mm"};
@@ -156,16 +156,35 @@ void XMakefileParser::CreateBuildList()
         // Add source file
         buildString += " " + sourceFile;
 
-        // create object file name
-        std::string objectFile = sourceFile.substr(0, sourceFile.find_last_of('.')) + ".o";
+        std::string objectFile;
 
+        // replace path if object file with build dir
+        if (!currentConfig.BuildDir.empty())
+        {
+            std::filesystem::path buildDirPath = currentConfig.BuildDir;
+            std::filesystem::path sourceFilePath = sourceFile;
+            std::filesystem::path objectFilePath = buildDirPath / sourceFilePath.filename();
+
+            objectFile = objectFilePath.string().substr(0, sourceFile.find_last_of('.')) + ".o";
+        }
+        else
+        {
+            // No build dir specified, use the same directory as the source file
+            objectFile = sourceFile.substr(0, sourceFile.find_last_of('.')) + ".o";
+        }
+
+        // Add object file to the list
         objectFiles.push_back(objectFile);
 
         // Add output filename
         buildString += " -c -o " + objectFile;
 
+        BuildStruct buildStruct;
+        buildStruct.buildString = buildString;
+        buildStruct.objectFile = objectFile;
+
         // Store the build string
-        buildStrings.push_back(buildString);
+        buildStructures.push_back(buildStruct);
     }
 
     // Create the linker string
@@ -183,7 +202,7 @@ void XMakefileParser::CreateBuildList()
     // Add linker flags
     linkString += " " + currentConfig.LinkerFlags;
 
-#ifdef DEBUG
+#ifdef DEBUG_MORE
     std::cout << "Build strings:" << std::endl;
     for (const auto &buildString : buildStrings)
     {
@@ -193,17 +212,19 @@ void XMakefileParser::CreateBuildList()
 #endif
 }
 
-const std::string &XMakefileParser::GetNextBuildString()
+const BuildStruct &XMakefileParser::GetNextBuildStruct()
 {
-    static const std::string empty;
+    static const BuildStruct empty;
 
-    if (buildStringIndex >= buildStrings.size())
+    if (buildStructureIndex >= buildStructures.size())
     {
         // reached the end of the build strings
         return empty;
     }
 
-    return buildStrings[buildStringIndex++];
+
+
+    return buildStructures[buildStructureIndex++];
 }
 
 const std::string &XMakefileParser::GetLinkerString()
