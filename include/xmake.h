@@ -2,6 +2,7 @@
 
 #include "XMakefileParser.h"
 #include <iostream>
+#include <filesystem>
 
 class XMake
 {
@@ -20,29 +21,55 @@ public:
     {
         parser.CreateBuildList();
 
-        std::string buildString;
-        while (!(buildString = parser.GetNextBuildString()).empty())
+        while (true)
         {
+            const BuildStruct &buildStruct = parser.GetNextBuildStruct();
+
+            // Check if the build structure is empty
+            if (buildStruct.empty())
+            {
+                // No more build structures to process
+                break;
+            }
+
+            std::cout << "Building: " << buildStruct.objectFile << " ... ";
+
+            // get directory of the source file
+            std::string sourceDir = buildStruct.objectFile.substr(0, buildStruct.objectFile.find_last_of("/\\"));
+
+            // create the directory if it does not exist
+            if (!std::filesystem::exists(sourceDir))
+            {
+                std::filesystem::create_directories(sourceDir);
+            }
+            // get the output file name
+
             // Execute the build command
-            int result = system(buildString.c_str());
+            int result = system(buildStruct.buildString.c_str());
             if (result != 0)
             {
-                std::cerr << "Error: Build failed with command: " << buildString << std::endl;
+                std::cerr << "failed" << std::endl;
                 return false;
             }
+
+            std::cout << "done" << std::endl;
         }
 
-        // Execute the linker command
+        // After building all source files, link them
         std::string linkString = parser.GetLinkerString();
+
+        std::cout << "Linking: " << linkString << " ... ";
+        // Execute the linker command
         int result = system(linkString.c_str());
 
         if (result != 0)
         {
-            std::cerr << "Error: Linking failed with command: " << linkString << std::endl;
+            std::cerr << "failed" << std::endl;
             return false;
         }
 
-        std::cout << "Build and linking completed successfully." << std::endl;
+        std::cout << "done" << std::endl;
+        std::cout << "Finished building target: " << parser.GetOutputFilename() << std::endl;
         return true;
     }
 };
