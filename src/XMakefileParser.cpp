@@ -1,4 +1,6 @@
 #include "XMakefileParser.h"
+#include <algorithm>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -40,9 +42,13 @@ bool XMakefileParser::Parse(const std::string &path)
 
     file.close();
 
+    if (xmakefile.configs.size() > 0)
+        currentConfig = xmakefile.configs[0]; // Set the first config as the current one
+
 #ifdef DEBUG
     // print the parsed data for debugging
-    std::cout << std::endl << std::endl;
+    std::cout << std::endl
+              << std::endl;
     std::cout << "Parsed xmakefile:" << std::endl;
     std::cout << "Name: " << xmakefile.xmakeFileName << std::endl;
     std::cout << "Version: " << xmakefile.xmakeFileVersion << std::endl;
@@ -88,4 +94,97 @@ bool XMakefileParser::Parse(const std::string &path)
 #endif
 
     return true;
+}
+
+void XMakefileParser::CreateBuildList()
+{
+    // create the build list from the current config
+    buildStringIndex = 0; // Reset the index for build strings
+    buildStrings.clear(); // Clear previous build strings
+    linkString.clear();   // Clear previous linker string
+
+    const std::vector<std::string> extensions = {".cpp", ".c", ".cc", ".cxx", ".m", ".mm"};
+
+    // Find all files in source paths
+    for (const auto &sourcePath : currentConfig.SourcePaths)
+    {
+        // check if source path is relative or absolute
+        
+
+        
+        
+        FindSources(sourcePath, extensions);
+    }
+
+    // Create the build string for every source file
+
+    for (const auto &sourceFile : sourceFiles)
+    {
+        std::string buildString = currentConfig.CompilerPath + " " + currentConfig.Compiler + " " + currentConfig.CompilerFlags;
+
+        // Add include paths
+        for (const auto &includePath : currentConfig.IncludePaths)
+        {
+            buildString += " -I" + includePath;
+        }
+
+        // Add source file
+        buildString += " " + sourceFile;
+
+        // Add output filename
+        buildString += " -o " + currentConfig.OutputFilename;
+
+        // Add linker flags
+        buildString += " " + currentConfig.LinkerFlags;
+
+        // Store the build string
+        buildStrings.push_back(buildString);
+    }
+
+    // Create the linker string
+    linkString = currentConfig.CompilerPath + " " + currentConfig.Compiler + " " + currentConfig.LinkerFlags;
+
+#ifdef DEBUG
+    std::cout << "Build strings:" << std::endl;
+    for (const auto &buildString : buildStrings)
+    {
+        std::cout << buildString << std::endl;
+    }
+    std::cout << "Linker string: " << linkString << std::endl;
+#endif
+}
+
+const std::string &XMakefileParser::GetNextBuildString()
+{
+    if (buildStringIndex >= buildStrings.size())
+    {
+        // reached the end of the build strings
+        return "";
+    }
+
+    return buildStrings[buildStringIndex++];
+}
+
+const std::string &XMakefileParser::GetLinkerString()
+{
+    return linkString;
+}
+
+void XMakefileParser::FindSources(const std::string &path, const std::vector<std::string> &extensions)
+{
+    for (const auto &entry : std::filesystem::directory_iterator(path))
+    {
+        if (entry.is_directory())
+        {
+            FindSources(entry.path().string(), extensions);
+        }
+        else if (entry.is_regular_file())
+        {
+            std::string ext = entry.path().extension().string();
+            if (std::find(extensions.begin(), extensions.end(), ext) != extensions.end())
+            {
+                sourceFiles.push_back(entry.path().string());
+            }
+        }
+    }
 }

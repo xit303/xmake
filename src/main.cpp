@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Version.h"
 #include "CmdLineParser.h"
-#include "XMakefileParser.h"
+#include "xmake.h"
 #include <filesystem>
 
 int main(int argc, char **argv)
@@ -44,12 +44,15 @@ int main(int argc, char **argv)
         std::cout << "No xmakefile specified, using default." << std::endl;
     }
 
-    XMakefileParser xmakefileParser;
-    if (!xmakefileParser.Parse(xmakefilePath))
+
+    XMake xmake;
+    if (!xmake.Init(xmakefilePath))
     {
         std::cerr << "Error: Failed to parse xmakefile." << std::endl;
         return 1;
     }
+
+    xmake.Build();
 
     std::cout << "Done" << std::endl;
 
