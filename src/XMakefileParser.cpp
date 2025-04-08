@@ -45,7 +45,7 @@ bool XMakefileParser::Parse(const std::string &path)
     if (xmakefile.configs.size() > 0)
         currentConfig = xmakefile.configs[0]; // Set the first config as the current one
 
-#ifdef DEBUG
+#ifdef DEBUG_MORE
     // print the parsed data for debugging
     std::cout << std::endl
               << std::endl;
@@ -164,8 +164,8 @@ void XMakefileParser::CreateBuildList()
             std::filesystem::path buildDirPath = currentConfig.BuildDir + "/" + currentConfig.BuildType;
             std::filesystem::path sourceFilePath = sourceFile;
             std::filesystem::path objectFilePath = buildDirPath / sourceFilePath.filename();
-
-            objectFile = objectFilePath.string().substr(0, sourceFile.find_last_of('.')) + ".o";
+            std::string substring = objectFilePath.string().substr(0, objectFilePath.string().find_last_of('.'));
+            objectFile = substring + ".o";
         }
         else
         {

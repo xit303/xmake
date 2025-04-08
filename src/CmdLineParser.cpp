@@ -12,6 +12,11 @@ bool CmdLineParser::Parse(int argc, char *argv[])
     for (int i = 1; i < argc; ++i)
     {
         std::string arg = argv[i];
+        if (arg.empty())
+        {
+            continue;
+        }
+
         if (arg[0] == '-')
         {
             if (i + 1 < argc && argv[i + 1][0] != '-')
@@ -22,6 +27,10 @@ bool CmdLineParser::Parse(int argc, char *argv[])
             {
                 options[arg] = "";
             }
+        }
+        else
+        {
+            options[arg] = argv[i];
         }
     }
 

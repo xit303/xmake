@@ -78,7 +78,7 @@ CPP_DEPFILES = $(filter %.d, $(patsubst %.cpp, $(OBJECT_DIR)/%.d, $(SRCS)) )
 # Default Target
 ################################################################################
 
-all: $(BIN_DIR)/$(PROJECT_NAME) copy
+# all: $(BIN_DIR)/$(PROJECT_NAME) copy
 
 ################################################################################
 # Target Generation

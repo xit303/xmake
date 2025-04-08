@@ -11,6 +11,8 @@ int main(int argc, char **argv)
     parser.RegisterOption("--version", "Show version information");
     parser.RegisterOption("-v", "Enable verbose output");
     parser.RegisterOption("--xmakefile", "Path to the xmakefile to use");
+    parser.RegisterOption("clean", "Clean the build files");
+    parser.RegisterOption("cleanall", "Clean all files");
     
     if (!parser.Parse(argc, argv))
     {
@@ -50,6 +52,20 @@ int main(int argc, char **argv)
     {
         std::cerr << "Error: Failed to parse xmakefile." << std::endl;
         return 1;
+    }
+
+    if (parser.IsOptionSet("clean"))
+    {
+        xmake.Clean();
+        std::cout << "Cleaned build files." << std::endl;
+        return 0;
+    }
+
+    if (parser.IsOptionSet("cleanall"))
+    {
+        xmake.CleanAll();
+        std::cout << "Cleaned all files." << std::endl;
+        return 0;
     }
 
     xmake.Build();
