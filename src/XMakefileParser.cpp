@@ -42,6 +42,7 @@ bool XMakefileParser::Parse(const std::string &path)
 
 #ifdef DEBUG
     // print the parsed data for debugging
+    std::cout << std::endl << std::endl;
     std::cout << "Parsed xmakefile:" << std::endl;
     std::cout << "Name: " << xmakefile.xmakeFileName << std::endl;
     std::cout << "Version: " << xmakefile.xmakeFileVersion << std::endl;
