@@ -124,8 +124,9 @@ void XMakefileParser::CreateBuildList()
         }
     }
 
-    // Create the build string for every source file
+    std::vector<std::string> objectFiles;
 
+    // Create the build string for every source file
     for (const auto &sourceFile : sourceFiles)
     {
         std::string buildString = currentConfig.CompilerPath + "/" + currentConfig.Compiler + " ";
@@ -158,15 +159,29 @@ void XMakefileParser::CreateBuildList()
         // create object file name
         std::string objectFile = sourceFile.substr(0, sourceFile.find_last_of('.')) + ".o";
 
+        objectFiles.push_back(objectFile);
+
         // Add output filename
-        buildString += " -o " + objectFile;
+        buildString += " -c -o " + objectFile;
 
         // Store the build string
         buildStrings.push_back(buildString);
     }
 
     // Create the linker string
-    linkString = currentConfig.CompilerPath + "/" + currentConfig.Linker + " " + currentConfig.LinkerFlags;
+    linkString = currentConfig.CompilerPath + "/" + currentConfig.Linker;
+
+    // Add object files to the linker string
+    for (const auto &objectFile : objectFiles)
+    {
+        linkString += " " + objectFile;
+    }
+
+    // Add output filename
+    linkString += " -o " + currentConfig.OutputFilename;
+
+    // Add linker flags
+    linkString += " " + currentConfig.LinkerFlags;
 
 #ifdef DEBUG
     std::cout << "Build strings:" << std::endl;
@@ -207,6 +222,22 @@ void XMakefileParser::FindSources(const std::string &path, const std::vector<std
 
     for (const auto &entry : std::filesystem::directory_iterator(path))
     {
+        bool isExcluded = false;
+
+        // Check if the entry is in the exclude paths
+        for (const auto &excludePath : currentConfig.ExcludePaths)
+        {
+            if (entry.path().string().find(excludePath) != std::string::npos)
+            {
+                // Skip this entry as it is in the exclude paths
+                isExcluded = true;
+                break;
+            }
+        }
+
+        if (isExcluded)
+            continue;
+
         if (entry.is_directory())
         {
             FindSources(entry.path().string(), extensions);
@@ -216,6 +247,20 @@ void XMakefileParser::FindSources(const std::string &path, const std::vector<std
             std::string ext = entry.path().extension().string();
             if (std::find(extensions.begin(), extensions.end(), ext) != extensions.end())
             {
+                // Check if the file is in the exclude files
+                for (const auto &excludeFile : currentConfig.ExcludeFiles)
+                {
+                    if (entry.path().filename() == excludeFile)
+                    {
+                        // Skip this file as it is in the exclude files
+                        isExcluded = true;
+                        break;
+                    }
+                }
+
+                if (isExcluded)
+                    continue;
+
                 sourceFiles.push_back(entry.path().string());
             }
         }

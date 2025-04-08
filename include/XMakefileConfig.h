@@ -23,6 +23,8 @@ public:
     std::vector<std::string> LibraryPaths;
     std::vector<std::string> Libraries;
     std::vector<std::string> SourcePaths;
+    std::vector<std::string> ExcludePaths;
+    std::vector<std::string> ExcludeFiles;
 
     void FromJSON(const JsonVariant &doc)
     {
@@ -63,6 +65,19 @@ public:
         for (JsonVariant path : sourcePaths)
         {
             SourcePaths.push_back(path.as<std::string>());
+        }
+
+        // Extract excluded source paths
+        JsonArray excludePaths = doc["exclude_paths"].as<JsonArray>();
+        for (JsonVariant path : excludePaths)
+        {
+            ExcludePaths.push_back(path.as<std::string>());
+        }
+        // Extract excluded source files
+        JsonArray excludeFiles = doc["exclude_files"].as<JsonArray>();
+        for (JsonVariant file : excludeFiles)
+        {
+            ExcludeFiles.push_back(file.as<std::string>());
         }
     }
 };
