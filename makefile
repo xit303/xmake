@@ -133,6 +133,12 @@ info:
 run:
 	./$(BINARY)
 
+install:
+	@echo "Installing $(PROJECT_NAME) to /usr/local/bin"
+	sudo mkdir -p /usr/local/bin
+	sudo cp -f $(BIN_DIR)/$(PROJECT_NAME) /usr/local/bin/$(PROJECT_NAME)
+	@echo "Installed $(PROJECT_NAME) to /usr/local/bin"
+
 ####################################################################################
 
 clean:
