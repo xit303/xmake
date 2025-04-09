@@ -35,8 +35,6 @@
                 
             ],
             "post_build_commands": [
-                "mkdir -p .bin/Fonts && cp Resources/Fonts/*.* .bin/Fonts/",
-                "mkdir -p .bin/Shaders && cp Resources/Shaders/*.* .bin/Shaders/"
             ],
             "pre_run_commands": [
                 "echo 'Running...'"
@@ -46,7 +44,7 @@
             ],
             "install_commands": [
                 "mkdir -p /usr/local/bin",
-                "cp .bin/xmake /usr/local/bin/"
+                "cp .bin/Debug/xmake /usr/local/bin/"
             ],
             "uninstall_commands": [
                 "rm -f /usr/local/bin/xmake"
