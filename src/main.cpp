@@ -13,7 +13,9 @@ int main(int argc, char **argv)
     parser.RegisterOption("--xmakefile", "Path to the xmakefile to use");
     parser.RegisterOption("clean", "Clean the build files");
     parser.RegisterOption("cleanall", "Clean all files");
-    
+    parser.RegisterOption("run", "Run the output file after building");
+    parser.RegisterOption("install", "Install the output file");
+
     if (!parser.Parse(argc, argv))
     {
         return 1;
@@ -29,7 +31,9 @@ int main(int argc, char **argv)
         std::cout << "Version: " << VERSION_STRING << std::endl;
         return 0;
     }
-    if (parser.IsOptionSet("-v"))
+
+    bool verbose = parser.IsOptionSet("-v");
+    if (verbose)
     {
         std::cout << "Verbose output enabled" << std::endl;
     }
@@ -39,15 +43,17 @@ int main(int argc, char **argv)
     if (parser.IsOptionSet("--xmakefile"))
     {
         xmakefilePath = parser.GetOptionValue("--xmakefile", xmakefilePath);
-        std::cout << "Using xmakefile: " << xmakefilePath << std::endl;
+        if (verbose)
+            std::cout << "Using xmakefile: " << xmakefilePath << std::endl;
     }
     else
     {
-        std::cout << "No xmakefile specified, using default." << std::endl;
+        if (verbose)
+            std::cout << "No xmakefile specified, using default." << std::endl;
     }
 
 
-    XMake xmake;
+    XMake xmake(parser);
     if (!xmake.Init(xmakefilePath))
     {
         std::cerr << "Error: Failed to parse xmakefile." << std::endl;
