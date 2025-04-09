@@ -73,6 +73,23 @@ public:
                     std::filesystem::create_directories(sourceDir);
                 }
 
+                // Chech date of the source file and the object file
+                std::filesystem::path sourcePath(buildStruct.sourceFile);
+                std::filesystem::path objectPath(buildStruct.objectFile);
+
+                if (std::filesystem::exists(objectPath) && std::filesystem::last_write_time(sourcePath) <= std::filesystem::last_write_time(objectPath))
+                {
+                    if (verbose)
+                        std::cout << "Skipping: " << buildStruct.sourceFile << " (up to date)" << std::endl;
+
+                    return true;
+                }
+
+                if (verbose)
+                    std::cout << "Building: " << buildStruct.buildString << std::endl;
+                else
+                    std::cout << "Building: " << buildStruct.objectFile << std::endl;
+
                 // Execute the build command
                 int result = system(buildStruct.buildString.c_str());
                 if (result != 0)
