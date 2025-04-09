@@ -45,6 +45,8 @@ bool XMakefileParser::Parse(const std::string &path)
     if (xmakefile.configs.size() > 0)
         currentConfig = xmakefile.configs[0]; // Set the first config as the current one
 
+    LoadBuildTimes();
+
 #ifdef DEBUG_MORE
     // print the parsed data for debugging
     std::cout << std::endl
@@ -105,6 +107,23 @@ void XMakefileParser::CreateBuildList()
     buildStructures.clear(); // Clear previous build strings
     linkString.clear();      // Clear previous linker string
 
+    // Find all header files in include paths
+    for (const auto &includePath : currentConfig.IncludePaths)
+    {
+        // check if include path is relative or absolute
+        if (includePath[0] != '/' && includePath[1] != ':')
+        {
+            // relative path, convert to absolute
+            std::filesystem::path absPath = std::filesystem::current_path() / includePath;
+            FindSources(absPath.string(), {".h", ".hpp"});
+        }
+        else
+        {
+            // absolute path
+            FindSources(includePath, {".h", ".hpp"});
+        }
+    }
+
     const std::vector<std::string> extensions = {".cpp", ".c", ".cc", ".cxx", ".m", ".mm"};
 
     // Find all files in source paths
@@ -130,7 +149,7 @@ void XMakefileParser::CreateBuildList()
     for (const auto &sourceFile : sourceFiles)
     {
         std::string buildString = (currentConfig.CompilerPath.empty() ? "" : currentConfig.CompilerPath + "/") + currentConfig.Compiler + " ";
-    
+
         // check file extension to add specific compiler flags
         std::string ext = sourceFile.substr(sourceFile.find_last_of("."));
         if (ext == ".c")
@@ -141,6 +160,7 @@ void XMakefileParser::CreateBuildList()
         {
             buildString += currentConfig.CXXCompilerFlags;
         }
+        
         else
         {
             std::cerr << "Warning: Unknown file extension for file: " << sourceFile << std::endl;
@@ -236,9 +256,167 @@ void XMakefileParser::CreateBuildList()
 #endif
 }
 
+bool XMakefileParser::CheckSourceFiles()
+{
+    if (lastBuildTimes.size() == 0)
+    {
+        // we need to rebuild
+        return true;
+    }
+
+    if (lastBuildTimes.size() <= buildStructureIndex)
+    {
+        return false;
+    }
+
+    // Check if source files exist
+    for (const auto &sourceFile : sourceFiles)
+    {
+        // check last change time
+        std::filesystem::path sourcePath(sourceFile);
+        if (!std::filesystem::exists(sourcePath))
+        {
+            std::cerr << "Error: Source file does not exist: " << sourceFile << std::endl;
+            continue;
+        }
+
+        // Check last modified time
+        auto lastWriteTime = std::filesystem::last_write_time(sourcePath);
+
+        const std::string &timestamp = lastBuildTimes[sourcePath.string()];
+        if (timestamp.empty())
+        {
+            continue;
+        }
+
+        auto systemTime = std::chrono::system_clock::time_point{
+            std::chrono::duration_cast<std::chrono::system_clock::duration>(
+                std::chrono::system_clock::time_point::duration(std::stoll(lastBuildTimes[sourcePath.string()])))};
+        auto lastBuildTime = std::filesystem::file_time_type::clock::now() +
+                             (systemTime - std::chrono::system_clock::now());
+
+        // Check if the last write time is different from the last build time
+        if (lastWriteTime > lastBuildTime)
+        {
+            std::cout << "Source file changed: " << sourceFile << std::endl;
+            return true; // Source file has changed
+        }
+    }
+    return false;
+}
+bool XMakefileParser::CheckLibraries()
+{
+    if (lastBuildTimes.size() == 0)
+    {
+        // we need to rebuild
+        return true;
+    }
+
+    if (lastBuildTimes.size() <= buildStructureIndex)
+    {
+        return false;
+    }
+
+    // Check if libraries exist
+    for (const auto &library : currentConfig.Libraries)
+    {
+        // check last change time
+        std::filesystem::path libraryPath(library);
+        if (!std::filesystem::exists(libraryPath))
+        {
+            std::cerr << "Error: Library does not exist: " << library << std::endl;
+            continue;
+        }
+
+        // Check last modified time
+        auto lastWriteTime = std::filesystem::last_write_time(libraryPath);
+
+        const std::string &timestamp = lastBuildTimes[libraryPath.string()];
+        if (timestamp.empty())
+        {
+            continue;
+        }
+
+        auto systemTime = std::chrono::system_clock::time_point{
+            std::chrono::duration_cast<std::chrono::system_clock::duration>(
+                std::chrono::system_clock::time_point::duration(std::stoll(lastBuildTimes[libraryPath.string()])))};
+        auto lastBuildTime = std::filesystem::file_time_type::clock::now() +
+                             (systemTime - std::chrono::system_clock::now());
+
+        // Check if the last write time is different from the last build time
+        if (lastWriteTime > lastBuildTime)
+        {
+            std::cout << "Library changed: " << library << std::endl;
+            return true; // Library has changed
+        }
+    }
+    return false;
+}
+
 const std::string &XMakefileParser::GetLinkerString()
 {
     return linkString;
+}
+
+void XMakefileParser::LoadBuildTimes()
+{
+    // Load the last build times from a file in the build directory
+    std::string buildTimeFile = currentConfig.BuildDir + "/" + currentConfig.BuildType + "/build_times.txt";
+    std::ifstream file(buildTimeFile);
+    if (!file.is_open())
+    {
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line))
+    {
+        size_t separator = line.find('|');
+        if (separator != std::string::npos)
+        {
+            std::string filename = line.substr(0, separator);
+            std::string timestamp = line.substr(separator + 1);
+            lastBuildTimes[filename] = timestamp; // Store filename and timestamp
+        }
+    }
+    file.close();
+}
+
+void XMakefileParser::SaveBuildTimes()
+{
+    for (const auto &buildStruct : buildStructures)
+    {
+        // Check if the object file exists
+        if (buildStruct.sourceFile.empty())
+            continue;
+
+        std::filesystem::path sourcePath(buildStruct.sourceFile);
+        if (!std::filesystem::exists(sourcePath))
+            continue;
+
+        auto lastWriteTime = std::filesystem::last_write_time(sourcePath);
+        auto systemTime = std::chrono::system_clock::time_point{
+            std::chrono::duration_cast<std::chrono::system_clock::duration>(
+                lastWriteTime.time_since_epoch())};
+        std::time_t time = std::chrono::system_clock::to_time_t(systemTime);
+
+        lastBuildTimes[buildStruct.objectFile] = std::to_string(time); // Store filename and timestamp
+    }
+
+    // Save the last build times to a file in the build directory
+    std::string buildTimeFile = currentConfig.BuildDir + "/" + currentConfig.BuildType + "/build_times.txt";
+    std::ofstream file(buildTimeFile);
+    if (!file.is_open())
+    {
+        std::cerr << "Error: Could not open build time file for writing: " << buildTimeFile << std::endl;
+        return;
+    }
+    for (const auto &entry : lastBuildTimes)
+    {
+        file << entry.first << "|" << entry.second << std::endl; // Write filename and timestamp
+    }
+    file.close();
+    std::cout << "Build times saved to: " << buildTimeFile << std::endl;
 }
 
 void XMakefileParser::FindSources(const std::string &path, const std::vector<std::string> &extensions)

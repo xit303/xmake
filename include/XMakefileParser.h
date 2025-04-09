@@ -2,6 +2,11 @@
 
 #include "XMakefile.h"
 #include <atomic>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <chrono>
+#include <map>
 
 struct BuildStruct
 {
@@ -24,9 +29,12 @@ private:
     std::string xmakefileDir;
 
     std::atomic<size_t> buildStructureIndex = 0; // Atomic index for build strings to ensure thread safety
-    std::vector<std::string> sourceFiles; // List of source files to be compiled
+    std::vector<std::string> sourceFiles;        // List of source files to be compiled
     std::vector<BuildStruct> buildStructures;
     std::string linkString;
+
+    // storage for last modified times
+    std::map<std::string, std::string> lastBuildTimes;
 
     JsonDocument jsonDoc; // JSON document to hold the parsed content
 
@@ -48,7 +56,13 @@ public:
 
     void CreateBuildList();
     void ResetBuildIndex() { buildStructureIndex = 0; }
-    
+
+    bool CheckSourceFiles();
+    bool CheckLibraries();
+
     const std::vector<BuildStruct> &GetBuildStructures() { return buildStructures; }
     const std::string &GetLinkerString();
+
+    void LoadBuildTimes();
+    void SaveBuildTimes();
 };

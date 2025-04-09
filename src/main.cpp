@@ -52,6 +52,8 @@ int main(int argc, char **argv)
             std::cout << "No xmakefile specified, using default." << std::endl;
     }
 
+
+    
     XMake xmake(parser);
     if (!xmake.Init(xmakefilePath))
     {
@@ -84,6 +86,17 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    // measure build time
+    auto start = std::chrono::high_resolution_clock::now();
+
     xmake.Build();
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = end - start;
+    std::cout << "Build completed in " << elapsed.count() << " seconds." << std::endl;
+
+    // save build times
+    xmake.SaveBuildTimes();
+
     return 0;
 }

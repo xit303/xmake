@@ -34,6 +34,27 @@ public:
     {
         parser.CreateBuildList();
 
+        // check if dependencies are up to date
+        if (parser.GetBuildStructures().empty())
+        {
+            std::cout << "No build structures found." << std::endl;
+            return false;
+        }
+        
+        if (parser.CheckSourceFiles())
+        {
+            std::cout << "Source files changed, rebuilding..." << std::endl;
+        }
+        else if (parser.CheckLibraries())
+        {
+            std::cout << "Libraries changed, rebuilding..." << std::endl;
+        }
+        else
+        {
+            std::cout << "No changes in files." << std::endl;
+            return false;
+        }
+
         // execute pre-build commands
         XMakefileConfig config = parser.GetCurrentConfig();
         if (config.PreBuildCommands.size() > 0)
@@ -202,7 +223,7 @@ public:
         }
 
         // Execute the output file
-        std::string runCommand = "./" + parser.GetOutputFilename();
+        std::string runCommand = "./" + config.BuildDir + "/" + config.BuildType + "/" + config.OutputFilename;
         int result = system(runCommand.c_str());
         if (result != 0)
         {
@@ -273,5 +294,10 @@ public:
         }
 
         std::cout << "Uninstalled successfully." << std::endl;
+    }
+
+    void SaveBuildTimes()
+    {
+        parser.SaveBuildTimes();
     }
 };
