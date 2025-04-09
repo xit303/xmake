@@ -191,4 +191,43 @@ public:
 
         std::cout << "Cleaned all files." << std::endl;
     }
+
+    void Run()
+    {
+        XMakefileConfig config = parser.GetCurrentConfig();
+        if (config.PreRunCommands.size() > 0)
+        {
+            for (const auto &command : config.PreRunCommands)
+            {
+                if (verbose)
+                    std::cout << "Pre-run command: " << command << std::endl;
+
+                int result = system(command.c_str());
+                if (result != 0)
+                    return;
+            }
+        }
+
+        // Execute the output file
+        std::string runCommand = "./" + parser.GetOutputFilename();
+        int result = system(runCommand.c_str());
+        if (result != 0)
+        {
+            std::cerr << "Error: Failed to run the output file." << std::endl;
+            return;
+        }
+
+        if (config.PostRunCommands.size() > 0)
+        {
+            for (const auto &command : config.PostRunCommands)
+            {
+                if (verbose)
+                    std::cout << "Post-run command: " << command << std::endl;
+
+                int result = system(command.c_str());
+                if (result != 0)
+                    return;
+            }
+        }
+    }
 };
