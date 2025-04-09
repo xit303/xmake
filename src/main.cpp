@@ -11,10 +11,10 @@ int main(int argc, char **argv)
     parser.RegisterOption("--version", "Show version information");
     parser.RegisterOption("-v", "Enable verbose output");
     parser.RegisterOption("--xmakefile", "Path to the xmakefile to use");
-    parser.RegisterOption("clean", "Clean the build files");
-    parser.RegisterOption("cleanall", "Clean all files");
+    parser.RegisterOption("clean", "Clean all build files (clean_commands needs to be set in xakefile)");
     parser.RegisterOption("run", "Run the output file after building");
     parser.RegisterOption("install", "Install the output file");
+    parser.RegisterOption("uninstall", "Uninstall the output file");
 
     if (!parser.Parse(argc, argv))
     {
@@ -52,7 +52,6 @@ int main(int argc, char **argv)
             std::cout << "No xmakefile specified, using default." << std::endl;
     }
 
-
     XMake xmake(parser);
     if (!xmake.Init(xmakefilePath))
     {
@@ -67,10 +66,21 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (parser.IsOptionSet("cleanall"))
+    if (parser.IsOptionSet("run"))
     {
-        xmake.CleanAll();
-        std::cout << "Cleaned all files." << std::endl;
+        xmake.Run();
+        return 0;
+    }
+
+    if (parser.IsOptionSet("install"))
+    {
+        xmake.Install();
+        return 0;
+    }
+
+    if (parser.IsOptionSet("uninstall"))
+    {
+        xmake.Uninstall();
         return 0;
     }
 

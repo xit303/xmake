@@ -29,6 +29,9 @@ public:
     std::vector<std::string> PostBuildCommands;
     std::vector<std::string> PreRunCommands;
     std::vector<std::string> PostRunCommands;
+    std::vector<std::string> InstallCommands;
+    std::vector<std::string> UninstallCommands;
+    std::vector<std::string> CleanCommands;
 
     void FromJSON(const JsonVariant &doc)
     {
@@ -107,6 +110,25 @@ public:
         for (JsonVariant file : excludeFiles)
         {
             ExcludeFiles.push_back(file.as<std::string>());
+        }
+
+        // Extract install commands
+        JsonArray installCommands = doc["install_commands"].as<JsonArray>();
+        for (JsonVariant command : installCommands)
+        {
+            InstallCommands.push_back(command.as<std::string>());
+        }
+        // Extract uninstall commands
+        JsonArray uninstallCommands = doc["uninstall_commands"].as<JsonArray>();
+        for (JsonVariant command : uninstallCommands)
+        {
+            UninstallCommands.push_back(command.as<std::string>());
+        }
+        // Extract clean commands
+        JsonArray cleanCommands = doc["clean_commands"].as<JsonArray>();
+        for (JsonVariant command : cleanCommands)
+        {
+            CleanCommands.push_back(command.as<std::string>());
         }
     }
 };

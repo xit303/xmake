@@ -154,42 +154,35 @@ public:
     {
         std::cout << "Cleaning build files..." << std::endl;
 
-        parser.CreateBuildList();
-
-        for (const BuildStruct &buildStruct : parser.GetBuildStructures())
+        // run all the clean_commands
+        XMakefileConfig config = parser.GetCurrentConfig();
+        if (config.CleanCommands.size() > 0)
         {
-            if (!buildStruct.empty())
+            for (const auto &command : config.CleanCommands)
             {
-                if (!std::filesystem::remove(buildStruct.objectFile))
-                {
-                    std::cerr << "Error: Failed to remove " << buildStruct.objectFile << std::endl;
-                }
+                if (verbose)
+                    std::cout << "Clean command: " << command << std::endl;
+
+                int result = system(command.c_str());
+                if (result != 0)
+                    return;
             }
         }
+
+        // parser.CreateBuildList();
+
+        // for (const BuildStruct &buildStruct : parser.GetBuildStructures())
+        // {
+        //     if (!buildStruct.empty())
+        //     {
+        //         if (!std::filesystem::remove(buildStruct.objectFile))
+        //         {
+        //             std::cerr << "Error: Failed to remove " << buildStruct.objectFile << std::endl;
+        //         }
+        //     }
+        // }
 
         std::cout << "Cleaned build files." << std::endl;
-    }
-
-    void CleanAll()
-    {
-        std::cout << "Cleaning all files..." << std::endl;
-
-        parser.CreateBuildList();
-
-        for (const BuildStruct &buildStruct : parser.GetBuildStructures())
-        {
-            if (!buildStruct.empty())
-            {
-                if (!std::filesystem::remove(buildStruct.objectFile))
-                {
-                    std::cerr << "Error: Failed to remove " << buildStruct.objectFile << std::endl;
-                }
-            }
-        }
-
-        std::filesystem::remove(parser.GetOutputFilename());
-
-        std::cout << "Cleaned all files." << std::endl;
     }
 
     void Run()
@@ -229,5 +222,56 @@ public:
                     return;
             }
         }
+    }
+
+    void Install()
+    {
+        std::cout << "Installing..." << std::endl;
+
+        XMakefileConfig config = parser.GetCurrentConfig();
+        // run all the install_commands
+        if (config.InstallCommands.size() > 0)
+        {
+            for (const auto &command : config.InstallCommands)
+            {
+                if (verbose)
+                    std::cout << "Install command: " << command << std::endl;
+
+                int result = system(command.c_str());
+                if (result != 0)
+                {
+                    std::cerr << "Error: Failed to install." << std::endl;
+                    std::cerr << "Error code: " << result << std::endl;
+                    std::cerr << "Command: " << command << std::endl;
+                    std::cerr << "Installation failed." << std::endl;
+                    return;
+                }
+            }
+        }
+
+        std::cout << "Installed successfully." << std::endl;
+    }
+
+    void Uninstall()
+    {
+        std::cout << "Uninstalling..." << std::endl;
+
+        XMakefileConfig config = parser.GetCurrentConfig();
+
+        // run all the uninstall_commands
+        if (config.UninstallCommands.size() > 0)
+        {
+            for (const auto &command : config.UninstallCommands)
+            {
+                if (verbose)
+                    std::cout << "Uninstall command: " << command << std::endl;
+
+                int result = system(command.c_str());
+                if (result != 0)
+                    return;
+            }
+        }
+
+        std::cout << "Uninstalled successfully." << std::endl;
     }
 };

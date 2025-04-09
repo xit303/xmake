@@ -2,7 +2,7 @@
     "name" : "xmakefile",
     "version" : "1.0.0",
     "description" : "A simple xmakefile for building a C++ project",
-    "author" : "Your Name",
+    "author" : "xit",
     "license" : "MIT",
     "configurations": [
         {
@@ -43,6 +43,16 @@
             ],
             "post_run_commands": [
                 "echo 'Run completed!'"
+            ],
+            "install_commands": [
+                "mkdir -p /usr/local/bin",
+                "cp .bin/xmake /usr/local/bin/"
+            ],
+            "uninstall_commands": [
+                "rm -f /usr/local/bin/xmake"
+            ],
+            "clean_commands": [
+                "rm -rf .bin"
             ]
         }
     ]
