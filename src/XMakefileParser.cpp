@@ -207,6 +207,22 @@ void XMakefileParser::CreateBuildList()
     else
         linkString += " -o " + currentConfig.OutputFilename;
 
+    // Add library paths
+    for (const auto &libraryPath : currentConfig.LibraryPaths)
+    {
+        linkString += " -L" + libraryPath;
+    }
+    // Add libraries
+    for (const auto &library : currentConfig.Libraries)
+    {
+        linkString += " -l" + library;
+    }
+    // Add include paths
+    for (const auto &includePath : currentConfig.IncludePaths)
+    {
+        linkString += " -I" + includePath;
+    }
+
     // Add linker flags
     linkString += " " + currentConfig.LinkerFlags;
 
