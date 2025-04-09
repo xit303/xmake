@@ -11,6 +11,7 @@ class XMake
 {
 private:
     XMakefileParser parser;
+    bool verbose = false;
 
 public:
     XMake() = default;
@@ -28,16 +29,16 @@ public:
 
         std::vector<std::thread> threads;
 
+        std::atomic<int> numberOfBuilds = 0;
+
         for (const BuildStruct &buildStruct : parser.GetBuildStructures())
         {
-            threads.emplace_back([this, buildStruct = buildStruct]() -> bool
+            threads.emplace_back([this, buildStruct = buildStruct, &numberOfBuilds]() -> bool
                                  {
                 if (buildStruct.empty())
                 {
                     return false;
                 }
-
-                std::cout << "Building: " << buildStruct.buildString << std::endl;
 
                 // get directory of the source file
                 std::string sourceDir = buildStruct.objectFile.substr(0, buildStruct.objectFile.find_last_of("/\\"));
@@ -52,6 +53,8 @@ public:
                 int result = system(buildStruct.buildString.c_str());
                 if (result != 0)
                     return false;
+
+                numberOfBuilds++;
 
                 return true; });
         }
@@ -68,7 +71,17 @@ public:
         // After building all source files, link them
         std::string linkString = parser.GetLinkerString();
 
-        std::cout << "Linking: " << linkString << std::endl;
+        if (numberOfBuilds == 0)
+        {
+            std::cout << "All files are up to date" << std::endl;
+            return false;
+        }
+
+        if (verbose)
+            std::cout << "Linking: " << linkString << std::endl;
+        else
+            std::cout << "Linking: " << parser.GetOutputFilename() << std::endl;
+
         // Execute the linker command
         int result = system(linkString.c_str());
 
