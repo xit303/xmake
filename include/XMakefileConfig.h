@@ -25,6 +25,10 @@ public:
     std::vector<std::string> SourcePaths;
     std::vector<std::string> ExcludePaths;
     std::vector<std::string> ExcludeFiles;
+    std::vector<std::string> PreBuildCommands;
+    std::vector<std::string> PostBuildCommands;
+    std::vector<std::string> PreRunCommands;
+    std::vector<std::string> PostRunCommands;
 
     void FromJSON(const JsonVariant &doc)
     {
@@ -58,6 +62,31 @@ public:
         for (JsonVariant lib : libraries)
         {
             Libraries.push_back(lib.as<std::string>());
+        }
+
+        // Extract pre_build_commands
+        JsonArray preBuildCommands = doc["pre_build_commands"].as<JsonArray>();
+        for (JsonVariant command : preBuildCommands)
+        {
+            PreBuildCommands.push_back(command.as<std::string>());
+        }
+        // Extract post_build_commands
+        JsonArray postBuildCommands = doc["post_build_commands"].as<JsonArray>();
+        for (JsonVariant command : postBuildCommands)
+        {
+            PostBuildCommands.push_back(command.as<std::string>());
+        }
+        //Extract pre_run_commands
+        JsonArray preRunCommands = doc["pre_run_commands"].as<JsonArray>();
+        for (JsonVariant command : preRunCommands)
+        {
+            PreRunCommands.push_back(command.as<std::string>());
+        }
+        // Extract post_run_commands
+        JsonArray postRunCommands = doc["post_run_commands"].as<JsonArray>();
+        for (JsonVariant command : postRunCommands)
+        {
+            PostRunCommands.push_back(command.as<std::string>());
         }
 
         // Extract source paths

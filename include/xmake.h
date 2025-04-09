@@ -6,15 +6,24 @@
 #include <filesystem>
 #include <thread>
 #include <vector>
+#include <atomic>
 
 class XMake
 {
 private:
     XMakefileParser parser;
+    const CmdLineParser &cmdLineParser;
     bool verbose = false;
 
 public:
-    XMake() = default;
+    XMake(const CmdLineParser &cmdLineParser) : cmdLineParser(cmdLineParser)
+    {
+        // Check if verbose option is set
+        if (cmdLineParser.IsOptionSet("-v"))
+        {
+            verbose = true;
+        }
+    }
 
     bool Init(const std::string &makefileName)
     {
@@ -24,6 +33,21 @@ public:
     bool Build()
     {
         parser.CreateBuildList();
+
+        // execute pre-build commands
+        XMakefileConfig config = parser.GetCurrentConfig();
+        if (config.PreBuildCommands.size() > 0)
+        {
+            for (const auto &command : config.PreBuildCommands)
+            {
+                if (verbose)
+                    std::cout << "Pre-build command: " << command << std::endl;
+
+                int result = system(command.c_str());
+                if (result != 0)
+                    return false;
+            }
+        }
 
         // build all source files in parallel
 
@@ -89,6 +113,20 @@ public:
         {
             std::cerr << "Error: Linking failed." << std::endl;
             return false;
+        }
+
+        // execute post-build commands
+        if (config.PostBuildCommands.size() > 0)
+        {
+            for (const auto &command : config.PostBuildCommands)
+            {
+                if (verbose)
+                    std::cout << "Post-build command: " << command << std::endl;
+
+                int result = system(command.c_str());
+                if (result != 0)
+                    return false;
+            }
         }
 
         std::cout << "Finished building target: " << parser.GetOutputFilename() << std::endl;
