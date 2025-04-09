@@ -7,6 +7,7 @@ struct BuildStruct
 {
     std::string buildString;
     std::string objectFile;
+    std::string sourceFile;
 
     bool empty() const
     {

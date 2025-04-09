@@ -130,7 +130,7 @@ void XMakefileParser::CreateBuildList()
     for (const auto &sourceFile : sourceFiles)
     {
         std::string buildString = (currentConfig.CompilerPath.empty() ? "" : currentConfig.CompilerPath + "/") + currentConfig.Compiler + " ";
-
+    
         // check file extension to add specific compiler flags
         std::string ext = sourceFile.substr(sourceFile.find_last_of("."));
         if (ext == ".c")
@@ -180,6 +180,7 @@ void XMakefileParser::CreateBuildList()
         buildString += " -c -o " + objectFile;
 
         BuildStruct buildStruct;
+        buildStruct.sourceFile = sourceFile;
         buildStruct.buildString = buildString;
         buildStruct.objectFile = objectFile;
 
