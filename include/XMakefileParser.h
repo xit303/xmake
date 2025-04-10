@@ -46,12 +46,11 @@ private:
     void UpdateFileLists();
 
     void FindFiles(const std::string &path, const std::vector<std::string> &extensions, const std::vector<std::string> &excludePaths, const std::vector<std::string> &excludeFiles, std::vector<std::string> &outputFiles);
-    void FindSources(const std::string &path, const std::vector<std::string> &extensions);
     void FindHeaders(const std::string &path, const std::vector<std::string> &extensions);
+    void FindSources(const std::string &path, const std::vector<std::string> &extensions);
     void FindLibraries(const std::string &path, const std::vector<std::string> &extensions);
-    
 
-    bool CheckFiles(const std::vector<std::string> &files, const std::string &fileType);
+    bool CheckFileModifications(const std::vector<std::string> &files, const std::string &fileType);
 
 public:
     XMakefileParser();

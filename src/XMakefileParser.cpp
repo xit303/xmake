@@ -228,17 +228,17 @@ const std::string &XMakefileParser::GetLinkerString()
 
 bool XMakefileParser::CheckRebuild()
 {
-    if (CheckFiles(headerFiles, "Header"))
+    if (CheckFileModifications(headerFiles, "Header"))
     {
         std::cout << "Header files changed, rebuilding..." << std::endl;
         return true;
     }
-    else if (CheckFiles(sourceFiles, "Source"))
+    else if (CheckFileModifications(sourceFiles, "Source"))
     {
         std::cout << "Source files changed, rebuilding..." << std::endl;
         return true;
     }
-    else if (CheckFiles(currentConfig.Libraries, "Library"))
+    else if (CheckFileModifications(currentConfig.Libraries, "Library"))
     {
         std::cout << "Libraries changed, rebuilding..." << std::endl;
         return true;
@@ -325,6 +325,10 @@ void XMakefileParser::SaveBuildTimes()
 
 void XMakefileParser::UpdateFileLists()
 {
+    headerFiles.clear();
+    sourceFiles.clear();
+    libraryFiles.clear();
+
     // Find all header files in include paths
     for (const auto &includePath : currentConfig.IncludePaths)
     {
@@ -415,14 +419,14 @@ void XMakefileParser::FindFiles(const std::string &path, const std::vector<std::
     }
 }
 
-void XMakefileParser::FindSources(const std::string &path, const std::vector<std::string> &extensions)
-{
-    FindFiles(path, extensions, currentConfig.ExcludePaths, currentConfig.ExcludeFiles, sourceFiles);
-}
-
 void XMakefileParser::FindHeaders(const std::string &path, const std::vector<std::string> &extensions)
 {
     FindFiles(path, extensions, currentConfig.ExcludePaths, currentConfig.ExcludeFiles, headerFiles);
+}
+
+void XMakefileParser::FindSources(const std::string &path, const std::vector<std::string> &extensions)
+{
+    FindFiles(path, extensions, currentConfig.ExcludePaths, currentConfig.ExcludeFiles, sourceFiles);
 }
 
 void XMakefileParser::FindLibraries(const std::string &path, const std::vector<std::string> &extensions)
@@ -430,7 +434,7 @@ void XMakefileParser::FindLibraries(const std::string &path, const std::vector<s
     FindFiles(path, extensions, currentConfig.ExcludePaths, currentConfig.ExcludeFiles, libraryFiles);
 }
 
-bool XMakefileParser::CheckFiles(const std::vector<std::string> &files, const std::string &fileType)
+bool XMakefileParser::CheckFileModifications(const std::vector<std::string> &files, const std::string &fileType)
 {
     if (lastModifiedTimes.empty())
     {
