@@ -281,12 +281,7 @@ void XMakefileParser::SaveBuildTimes()
             continue;
 
         auto lastWriteTime = std::filesystem::last_write_time(path);
-        auto systemTime = std::chrono::system_clock::time_point{
-            std::chrono::duration_cast<std::chrono::system_clock::duration>(
-                lastWriteTime.time_since_epoch())};
-        std::time_t time = std::chrono::system_clock::to_time_t(systemTime);
-
-        lastModifiedTimes[file] = std::to_string(time); // Store filename and timestamp
+        lastModifiedTimes[file] = FileTimestampToString(lastWriteTime);
     }
 
     for (const std::string &file : headerFiles)
@@ -299,12 +294,7 @@ void XMakefileParser::SaveBuildTimes()
             continue;
 
         auto lastWriteTime = std::filesystem::last_write_time(path);
-        auto systemTime = std::chrono::system_clock::time_point{
-            std::chrono::duration_cast<std::chrono::system_clock::duration>(
-                lastWriteTime.time_since_epoch())};
-        std::time_t time = std::chrono::system_clock::to_time_t(systemTime);
-
-        lastModifiedTimes[file] = std::to_string(time); // Store filename and timestamp
+        lastModifiedTimes[file] = FileTimestampToString(lastWriteTime);
     }
 
     // Save the last build times to a file in the build directory
@@ -461,11 +451,7 @@ bool XMakefileParser::CheckFileModifications(const std::vector<std::string> &fil
             continue;
         }
 
-        auto systemTime = std::chrono::system_clock::time_point{
-            std::chrono::duration_cast<std::chrono::system_clock::duration>(
-                std::chrono::system_clock::time_point::duration(std::stoll(timestamp)))};
-        auto lastBuildTime = std::filesystem::file_time_type::clock::now() +
-                             (systemTime - std::chrono::system_clock::now());
+        auto lastBuildTime = StringToFileTimestamp(lastModifiedTimes[filePath.string()]);
 
         // Check if the last write time is different from the last build time
         if (lastWriteTime > lastBuildTime)
@@ -475,4 +461,17 @@ bool XMakefileParser::CheckFileModifications(const std::vector<std::string> &fil
         }
     }
     return false;
+}
+
+std::string XMakefileParser::FileTimestampToString(const std::filesystem::file_time_type &fileTime)
+{
+    auto sctp = std::chrono::time_point_cast<std::chrono::seconds>(fileTime);
+    auto epoch = sctp.time_since_epoch();
+    return std::to_string(epoch.count()); // Convert to Unix timestamp string
+}
+
+std::filesystem::file_time_type XMakefileParser::StringToFileTimestamp(const std::string &timestamp)
+{
+    auto seconds = std::stoll(timestamp);                                  // Convert string to long long
+    return std::filesystem::file_time_type(std::chrono::seconds(seconds)); // Convert to file_time_type
 }

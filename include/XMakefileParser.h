@@ -51,6 +51,10 @@ private:
     void FindLibraries(const std::string &path, const std::vector<std::string> &extensions);
 
     bool CheckFileModifications(const std::vector<std::string> &files, const std::string &fileType);
+    
+    std::string FileTimestampToString(const std::filesystem::file_time_type &fileTime);
+    std::filesystem::file_time_type StringToFileTimestamp(const std::string &timestamp);
+
 
 public:
     XMakefileParser();
