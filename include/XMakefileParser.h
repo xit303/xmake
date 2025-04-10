@@ -45,9 +45,7 @@ private:
     void FindSources(const std::string &path, const std::vector<std::string> &extensions);
     void FindHeaders(const std::string &path, const std::vector<std::string> &extensions);
 
-    bool CheckHeaderFiles();
-    bool CheckSourceFiles();
-    bool CheckLibraries();
+    bool CheckFiles(const std::vector<std::string> &files, const std::string &fileType);
 
 public:
     XMakefileParser();
