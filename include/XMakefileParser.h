@@ -31,6 +31,7 @@ private:
     std::atomic<size_t> buildStructureIndex = 0; // Atomic index for build strings to ensure thread safety
     std::vector<std::string> sourceFiles;        // List of source files to be compiled
     std::vector<std::string> headerFiles;        // List of header files to check date
+    std::vector<std::string> libraryFiles;       // Storage for library files
     std::vector<BuildStruct> buildStructures;
     std::string linkString;
 
@@ -42,8 +43,13 @@ private:
     XMakefile xmakefile;           // Parsed xmakefile structure
     XMakefileConfig currentConfig; // Current configuration being parsed
 
+    void UpdateFileLists();
+
+    void FindFiles(const std::string &path, const std::vector<std::string> &extensions, const std::vector<std::string> &excludePaths, const std::vector<std::string> &excludeFiles, std::vector<std::string> &outputFiles);
     void FindSources(const std::string &path, const std::vector<std::string> &extensions);
     void FindHeaders(const std::string &path, const std::vector<std::string> &extensions);
+    void FindLibraries(const std::string &path, const std::vector<std::string> &extensions);
+    
 
     bool CheckFiles(const std::vector<std::string> &files, const std::string &fileType);
 

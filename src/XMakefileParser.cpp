@@ -107,41 +107,7 @@ void XMakefileParser::CreateBuildList()
     buildStructures.clear(); // Clear previous build strings
     linkString.clear();      // Clear previous linker string
 
-    // Find all header files in include paths
-    for (const auto &includePath : currentConfig.IncludePaths)
-    {
-        // check if include path is relative or absolute
-        if (includePath[0] != '/' && includePath[1] != ':')
-        {
-            // relative path, convert to absolute
-            std::filesystem::path absPath = std::filesystem::current_path() / includePath;
-            FindHeaders(absPath.string(), {".h", ".hpp"});
-        }
-        else
-        {
-            // absolute path
-            FindHeaders(includePath, {".h", ".hpp"});
-        }
-    }
-
-    const std::vector<std::string> extensions = {".cpp", ".c", ".cc", ".cxx", ".m", ".mm"};
-
-    // Find all files in source paths
-    for (const auto &sourcePath : currentConfig.SourcePaths)
-    {
-        // check if source path is relative or absolute
-        if (sourcePath[0] != '/' && sourcePath[1] != ':')
-        {
-            // relative path, convert to absolute
-            std::filesystem::path absPath = std::filesystem::current_path() / sourcePath;
-            FindSources(absPath.string(), extensions);
-        }
-        else
-        {
-            // absolute path
-            FindSources(sourcePath, extensions);
-        }
-    }
+    UpdateFileLists();
 
     std::vector<std::string> objectFiles;
 
@@ -357,9 +323,49 @@ void XMakefileParser::SaveBuildTimes()
     std::cout << "Build times saved to: " << buildTimeFile << std::endl;
 }
 
-void XMakefileParser::FindSources(const std::string &path, const std::vector<std::string> &extensions)
+void XMakefileParser::UpdateFileLists()
 {
-    // Check if the path is a directory and if it exists
+    // Find all header files in include paths
+    for (const auto &includePath : currentConfig.IncludePaths)
+    {
+        // check if include path is relative or absolute
+        if (includePath[0] != '/' && includePath[1] != ':')
+        {
+            // relative path, convert to absolute
+            std::filesystem::path absPath = std::filesystem::current_path() / includePath;
+            FindHeaders(absPath.string(), {".h", ".hpp"});
+        }
+        else
+        {
+            // absolute path
+            FindHeaders(includePath, {".h", ".hpp"});
+        }
+    }
+
+    const std::vector<std::string> extensions = {".cpp", ".c", ".cc", ".cxx", ".m", ".mm"};
+
+    // Find all files in source paths
+    for (const auto &sourcePath : currentConfig.SourcePaths)
+    {
+        // check if source path is relative or absolute
+        if (sourcePath[0] != '/' && sourcePath[1] != ':')
+        {
+            // relative path, convert to absolute
+            std::filesystem::path absPath = std::filesystem::current_path() / sourcePath;
+            FindSources(absPath.string(), extensions);
+        }
+        else
+        {
+            // absolute path
+            FindSources(sourcePath, extensions);
+        }
+    }
+
+    // TODO find all library files
+}
+
+void XMakefileParser::FindFiles(const std::string &path, const std::vector<std::string> &extensions, const std::vector<std::string> &excludePaths, const std::vector<std::string> &excludeFiles, std::vector<std::string> &outputFiles)
+{
     if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path))
     {
         std::cerr << "Error: Path does not exist or is not a directory: " << path << std::endl;
@@ -370,12 +376,10 @@ void XMakefileParser::FindSources(const std::string &path, const std::vector<std
     {
         bool isExcluded = false;
 
-        // Check if the entry is in the exclude paths
-        for (const auto &excludePath : currentConfig.ExcludePaths)
+        for (const auto &excludePath : excludePaths)
         {
             if (entry.path().string().find(excludePath) != std::string::npos)
             {
-                // Skip this entry as it is in the exclude paths
                 isExcluded = true;
                 break;
             }
@@ -386,19 +390,17 @@ void XMakefileParser::FindSources(const std::string &path, const std::vector<std
 
         if (entry.is_directory())
         {
-            FindSources(entry.path().string(), extensions);
+            FindFiles(entry.path().string(), extensions, excludePaths, excludeFiles, outputFiles);
         }
         else if (entry.is_regular_file())
         {
             std::string ext = entry.path().extension().string();
             if (std::find(extensions.begin(), extensions.end(), ext) != extensions.end())
             {
-                // Check if the file is in the exclude files
-                for (const auto &excludeFile : currentConfig.ExcludeFiles)
+                for (const auto &excludeFile : excludeFiles)
                 {
                     if (entry.path().filename() == excludeFile)
                     {
-                        // Skip this file as it is in the exclude files
                         isExcluded = true;
                         break;
                     }
@@ -407,65 +409,25 @@ void XMakefileParser::FindSources(const std::string &path, const std::vector<std
                 if (isExcluded)
                     continue;
 
-                sourceFiles.push_back(entry.path().string());
+                outputFiles.push_back(entry.path().string());
             }
         }
     }
 }
+
+void XMakefileParser::FindSources(const std::string &path, const std::vector<std::string> &extensions)
+{
+    FindFiles(path, extensions, currentConfig.ExcludePaths, currentConfig.ExcludeFiles, sourceFiles);
+}
+
 void XMakefileParser::FindHeaders(const std::string &path, const std::vector<std::string> &extensions)
 {
-    // Check if the path is a directory and if it exists
-    if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path))
-    {
-        std::cerr << "Error: Path does not exist or is not a directory: " << path << std::endl;
-        return;
-    }
+    FindFiles(path, extensions, currentConfig.ExcludePaths, currentConfig.ExcludeFiles, headerFiles);
+}
 
-    for (const auto &entry : std::filesystem::directory_iterator(path))
-    {
-        bool isExcluded = false;
-
-        // Check if the entry is in the exclude paths
-        for (const auto &excludePath : currentConfig.ExcludePaths)
-        {
-            if (entry.path().string().find(excludePath) != std::string::npos)
-            {
-                // Skip this entry as it is in the exclude paths
-                isExcluded = true;
-                break;
-            }
-        }
-
-        if (isExcluded)
-            continue;
-
-        if (entry.is_directory())
-        {
-            FindHeaders(entry.path().string(), extensions);
-        }
-        else if (entry.is_regular_file())
-        {
-            std::string ext = entry.path().extension().string();
-            if (std::find(extensions.begin(), extensions.end(), ext) != extensions.end())
-            {
-                // Check if the file is in the exclude files
-                for (const auto &excludeFile : currentConfig.ExcludeFiles)
-                {
-                    if (entry.path().filename() == excludeFile)
-                    {
-                        // Skip this file as it is in the exclude files
-                        isExcluded = true;
-                        break;
-                    }
-                }
-
-                if (isExcluded)
-                    continue;
-
-                headerFiles.push_back(entry.path().string());
-            }
-        }
-    }
+void XMakefileParser::FindLibraries(const std::string &path, const std::vector<std::string> &extensions)
+{
+    FindFiles(path, extensions, currentConfig.ExcludePaths, currentConfig.ExcludeFiles, libraryFiles);
 }
 
 bool XMakefileParser::CheckFiles(const std::vector<std::string> &files, const std::string &fileType)
