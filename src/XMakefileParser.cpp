@@ -226,24 +226,24 @@ const std::string &XMakefileParser::GetLinkerString()
     return linkString;
 }
 
-bool XMakefileParser::CheckRebuild()
+RebuildScheme XMakefileParser::CheckRebuild()
 {
     if (CheckFileModifications(headerFiles, "Header"))
     {
         std::cout << "Header files changed, rebuilding..." << std::endl;
-        return true;
+        return RebuildScheme::Full;
     }
     else if (CheckFileModifications(sourceFiles, "Source"))
     {
         std::cout << "Source files changed, rebuilding..." << std::endl;
-        return true;
+        return RebuildScheme::Sources;
     }
     else if (CheckFileModifications(currentConfig.Libraries, "Library"))
     {
         std::cout << "Libraries changed, rebuilding..." << std::endl;
-        return true;
+        return RebuildScheme::Link;
     }
-    return false;
+    return RebuildScheme::None;
 }
 
 void XMakefileParser::LoadBuildTimes()

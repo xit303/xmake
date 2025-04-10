@@ -20,6 +20,14 @@ struct BuildStruct
     }
 };
 
+enum RebuildScheme
+{
+    None,
+    Full,
+    Sources,
+    Link
+};
+
 class XMakefileParser
 {
 private:
@@ -70,7 +78,7 @@ public:
     void CreateBuildList();
     void ResetBuildIndex() { buildStructureIndex = 0; }
 
-    bool CheckRebuild();
+    RebuildScheme CheckRebuild();
 
     const std::vector<BuildStruct> &GetBuildStructures() { return buildStructures; }
     const std::string &GetLinkerString();

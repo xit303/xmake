@@ -1,12 +1,12 @@
 #pragma once
 
-#include "XMakefileParser.h"
 #include "CmdLineParser.h"
-#include <iostream>
+#include "XMakefileParser.h"
+#include <atomic>
 #include <filesystem>
+#include <iostream>
 #include <thread>
 #include <vector>
-#include <atomic>
 
 class XMake
 {
@@ -41,7 +41,9 @@ public:
             return false;
         }
 
-        if (!parser.CheckRebuild())
+        RebuildScheme rebuildScheme = parser.CheckRebuild();
+
+        if (rebuildScheme == RebuildScheme::None)
         {
             std::cout << "No changes in files." << std::endl;
             return false;
@@ -65,13 +67,14 @@ public:
         // build all source files in parallel
 
         std::vector<std::thread> threads;
-
         std::atomic<int> numberOfBuilds = 0;
 
-        for (const BuildStruct &buildStruct : parser.GetBuildStructures())
+        if (rebuildScheme == RebuildScheme::Full || rebuildScheme == RebuildScheme::Sources)
         {
-            threads.emplace_back([this, buildStruct = buildStruct, &numberOfBuilds]() -> bool
-                                 {
+            for (const BuildStruct &buildStruct : parser.GetBuildStructures())
+            {
+                threads.emplace_back([this, buildStruct = buildStruct, &numberOfBuilds, rebuildScheme = rebuildScheme]() -> bool
+                                     {
                 if (buildStruct.empty())
                 {
                     return false;
@@ -86,16 +89,19 @@ public:
                     std::filesystem::create_directories(sourceDir);
                 }
 
-                // Chech date of the source file and the object file
-                std::filesystem::path sourcePath(buildStruct.sourceFile);
-                std::filesystem::path objectPath(buildStruct.objectFile);
-
-                if (std::filesystem::exists(objectPath) && std::filesystem::last_write_time(sourcePath) <= std::filesystem::last_write_time(objectPath))
+                if (rebuildScheme == RebuildScheme::Sources)
                 {
-                    if (verbose)
-                        std::cout << "Skipping: " << buildStruct.sourceFile << " (up to date)" << std::endl;
+                    // Check date of the source file and the object file
+                    std::filesystem::path sourcePath(buildStruct.sourceFile);
+                    std::filesystem::path objectPath(buildStruct.objectFile);
 
-                    return true;
+                    if (std::filesystem::exists(objectPath) && std::filesystem::last_write_time(sourcePath) <= std::filesystem::last_write_time(objectPath))
+                    {
+                        if (verbose)
+                            std::cout << "Skipping: " << buildStruct.sourceFile << " (up to date)" << std::endl;
+
+                        return true;
+                    }
                 }
 
                 if (verbose)
@@ -111,6 +117,7 @@ public:
                 numberOfBuilds++;
 
                 return true; });
+            }
         }
 
         // Wait for all threads to finish
