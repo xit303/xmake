@@ -40,16 +40,8 @@ public:
             std::cout << "No build structures found." << std::endl;
             return false;
         }
-        
-        if (parser.CheckSourceFiles())
-        {
-            std::cout << "Source files changed, rebuilding..." << std::endl;
-        }
-        else if (parser.CheckLibraries())
-        {
-            std::cout << "Libraries changed, rebuilding..." << std::endl;
-        }
-        else
+
+        if (!parser.CheckRebuild())
         {
             std::cout << "No changes in files." << std::endl;
             return false;
