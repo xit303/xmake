@@ -95,8 +95,5 @@ int main(int argc, char **argv)
     std::chrono::duration<double> elapsed = end - start;
     std::cout << "Build completed in " << elapsed.count() << " seconds." << std::endl;
 
-    // save build times
-    xmake.SaveBuildTimes();
-
     return 0;
 }
