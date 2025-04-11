@@ -1,4 +1,5 @@
 #include "xmake.h"
+#include "SecurityHelper.h"
 
 XMake::XMake(const CmdLineParser &cmdLineParser) : cmdLineParser(cmdLineParser)
 {
@@ -43,9 +44,11 @@ bool XMake::Build()
             if (verbose)
                 std::cout << "Pre-build command: " << command << std::endl;
 
-            int result = system(command.c_str());
-            if (result != 0)
+            if (!ExecuteCommand(command))
+            {
+                std::cerr << "Error: Pre-build command failed." << std::endl;
                 return false;
+            }
         }
     }
 
@@ -100,11 +103,10 @@ bool XMake::Build()
                     std::cout << "Building: " << buildStruct.objectFile << std::endl;
 
                 // Execute the build command
-                int result = system(buildStruct.buildString.c_str());
-                if (result != 0)
+                if (!ExecuteCommand(buildStruct.buildString))
                 {
                     interruptBuild = true; // Set interrupt flag
-                    std::cerr << buildStruct.buildString << " failed with error code: " << std::to_string(result) << std::endl;
+                    std::cerr << buildStruct.buildString << " failed" << std::endl;
                     return false;
                 }
 
@@ -138,9 +140,7 @@ bool XMake::Build()
         std::cout << "Linking: " << parser.GetOutputFilename() << std::endl;
 
     // Execute the linker command
-    int result = system(linkString.c_str());
-
-    if (result != 0)
+    if (!ExecuteCommand(linkString))
     {
         std::cerr << "Error: Linking failed." << std::endl;
         return false;
@@ -154,9 +154,11 @@ bool XMake::Build()
             if (verbose)
                 std::cout << "Post-build command: " << command << std::endl;
 
-            int result = system(command.c_str());
-            if (result != 0)
+            if (!ExecuteCommand(command))
+            {
+                std::cerr << "Error: Post-build command failed." << std::endl;
                 return false;
+            }
         }
     }
 
@@ -181,9 +183,11 @@ void XMake::Clean()
             if (verbose)
                 std::cout << "Clean command: " << command << std::endl;
 
-            int result = system(command.c_str());
-            if (result != 0)
+            if (!ExecuteCommand(command))
+            {
+                std::cerr << "Error: Clean command failed." << std::endl;
                 return;
+            }
         }
     }
 
@@ -213,16 +217,17 @@ void XMake::Run()
             if (verbose)
                 std::cout << "Pre-run command: " << command << std::endl;
 
-            int result = system(command.c_str());
-            if (result != 0)
+            if (!ExecuteCommand(command))
+            {
+                std::cerr << "Error: Pre-run command failed." << std::endl;
                 return;
+            }
         }
     }
 
     // Execute the output file
     std::string runCommand = "./" + config.BuildDir + "/" + config.BuildType + "/" + config.OutputFilename;
-    int result = system(runCommand.c_str());
-    if (result != 0)
+    if (!ExecuteCommand(runCommand))
     {
         std::cerr << "Error: Failed to run the output file." << std::endl;
         return;
@@ -235,9 +240,11 @@ void XMake::Run()
             if (verbose)
                 std::cout << "Post-run command: " << command << std::endl;
 
-            int result = system(command.c_str());
-            if (result != 0)
+            if (!ExecuteCommand(command))
+            {
+                std::cerr << "Error: Post-run command failed." << std::endl;
                 return;
+            }
         }
     }
 }
@@ -255,13 +262,9 @@ void XMake::Install()
             if (verbose)
                 std::cout << "Install command: " << command << std::endl;
 
-            int result = system(command.c_str());
-            if (result != 0)
+            if (!ExecuteCommand(command))
             {
-                std::cerr << "Error: Failed to install." << std::endl;
-                std::cerr << "Error code: " << result << std::endl;
-                std::cerr << "Command: " << command << std::endl;
-                std::cerr << "Installation failed." << std::endl;
+                std::cerr << "Error: Install command failed." << std::endl;
                 return;
             }
         }
@@ -284,9 +287,11 @@ void XMake::Uninstall()
             if (verbose)
                 std::cout << "Uninstall command: " << command << std::endl;
 
-            int result = system(command.c_str());
-            if (result != 0)
+            if (!ExecuteCommand(command))
+            {
+                std::cerr << "Error: Uninstall command failed." << std::endl;
                 return;
+            }
         }
     }
 
