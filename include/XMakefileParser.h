@@ -31,6 +31,8 @@ enum RebuildScheme
 class XMakefileParser
 {
 private:
+    bool verbose = false; // Verbose mode flag
+
     std::string xmakefilePath;
     std::string xmakefileContent;
     std::string xmakefileName;
@@ -63,9 +65,10 @@ private:
     std::string FileTimestampToString(const std::filesystem::file_time_type &fileTime);
     std::filesystem::file_time_type StringToFileTimestamp(const std::string &timestamp);
 
-
 public:
     XMakefileParser();
+
+    void SetVerbose(bool verbose) { this->verbose = verbose; }
 
     bool Parse(const std::string &path);
 

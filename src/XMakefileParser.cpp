@@ -230,17 +230,20 @@ RebuildScheme XMakefileParser::CheckRebuild()
 {
     if (CheckFileModifications(headerFiles, "Header"))
     {
-        std::cout << "Header files changed, rebuilding..." << std::endl;
+        if (verbose)
+            std::cout << "Header files changed, startung full rebuild..." << std::endl;
         return RebuildScheme::Full;
     }
     else if (CheckFileModifications(sourceFiles, "Source"))
     {
-        std::cout << "Source files changed, rebuilding..." << std::endl;
+        if (verbose)
+            std::cout << "Source files changed, rebuilding sources..." << std::endl;
         return RebuildScheme::Sources;
     }
     else if (CheckFileModifications(currentConfig.Libraries, "Library"))
     {
-        std::cout << "Libraries changed, rebuilding..." << std::endl;
+        if (verbose)
+            std::cout << "Libraries changed, linking..." << std::endl;
         return RebuildScheme::Link;
     }
     return RebuildScheme::None;
@@ -310,7 +313,9 @@ void XMakefileParser::SaveBuildTimes()
         file << entry.first << "|" << entry.second << std::endl; // Write filename and timestamp
     }
     file.close();
-    std::cout << "Build times saved to: " << buildTimeFile << std::endl;
+
+    if (verbose)
+        std::cout << "Build times saved to: " << buildTimeFile << std::endl;
 }
 
 void XMakefileParser::UpdateFileLists()
@@ -408,17 +413,14 @@ void XMakefileParser::FindFiles(const std::string &path, const std::vector<std::
         }
     }
 }
-
 void XMakefileParser::FindHeaders(const std::string &path, const std::vector<std::string> &extensions)
 {
     FindFiles(path, extensions, currentConfig.ExcludePaths, currentConfig.ExcludeFiles, headerFiles);
 }
-
 void XMakefileParser::FindSources(const std::string &path, const std::vector<std::string> &extensions)
 {
     FindFiles(path, extensions, currentConfig.ExcludePaths, currentConfig.ExcludeFiles, sourceFiles);
 }
-
 void XMakefileParser::FindLibraries(const std::string &path, const std::vector<std::string> &extensions)
 {
     FindFiles(path, extensions, currentConfig.ExcludePaths, currentConfig.ExcludeFiles, libraryFiles);
@@ -456,7 +458,8 @@ bool XMakefileParser::CheckFileModifications(const std::vector<std::string> &fil
         // Check if the last write time is different from the last build time
         if (lastWriteTime > lastBuildTime)
         {
-            std::cout << fileType << " file changed: " << file << std::endl;
+            if (verbose)
+                std::cout << fileType << " file changed: " << file << std::endl;
             return true; // File has changed
         }
     }
@@ -469,7 +472,6 @@ std::string XMakefileParser::FileTimestampToString(const std::filesystem::file_t
     auto epoch = sctp.time_since_epoch();
     return std::to_string(epoch.count()); // Convert to Unix timestamp string
 }
-
 std::filesystem::file_time_type XMakefileParser::StringToFileTimestamp(const std::string &timestamp)
 {
     auto seconds = std::stoll(timestamp);                                  // Convert string to long long
