@@ -53,18 +53,23 @@ bool XMake::Build()
 
     std::vector<std::thread> threads;
     std::atomic<int> numberOfBuilds = 0;
+    std::atomic<bool> interruptBuild = false;
 
     if (rebuildScheme == RebuildScheme::Full || rebuildScheme == RebuildScheme::Sources)
     {
         for (const BuildStruct &buildStruct : parser.GetBuildStructures())
         {
-            threads.emplace_back([this, buildStruct = buildStruct, &numberOfBuilds, rebuildScheme = rebuildScheme]() -> bool
-                                 {
-                if (buildStruct.empty())
-                {
-                    return false;
-                }
+            if (interruptBuild)
+                break; // Stop building if interrupted
 
+            if (buildStruct.empty())
+                continue;
+
+            threads.emplace_back([this, buildStruct = buildStruct, &numberOfBuilds, rebuildScheme = rebuildScheme, &interruptBuild]() -> bool
+                                 {
+                if (interruptBuild)
+                    return false; // Stop building if interrupted
+                    
                 // get directory of the source file
                 std::string sourceDir = buildStruct.objectFile.substr(0, buildStruct.objectFile.find_last_of("/\\"));
 
@@ -97,7 +102,11 @@ bool XMake::Build()
                 // Execute the build command
                 int result = system(buildStruct.buildString.c_str());
                 if (result != 0)
+                {
+                    interruptBuild = true; // Set interrupt flag
+                    std::cerr << buildStruct.buildString << " failed with error code: " << std::to_string(result) << std::endl;
                     return false;
+                }
 
                 numberOfBuilds++;
 
@@ -113,9 +122,6 @@ bool XMake::Build()
             thread.join();
         }
     }
-
-    if (rebuildScheme == RebuildScheme::Full || rebuildScheme == RebuildScheme::Sources)
-        SaveBuildTimes();
 
     // After building all source files, link them
     std::string linkString = parser.GetLinkerString();
@@ -156,7 +162,8 @@ bool XMake::Build()
 
     std::cout << "Finished building target: " << parser.GetOutputFilename() << std::endl;
 
-
+    if (rebuildScheme == RebuildScheme::Full || rebuildScheme == RebuildScheme::Sources)
+        SaveBuildTimes();
 
     return true;
 }
