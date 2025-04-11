@@ -6,7 +6,7 @@
 
 int main(int argc, char **argv)
 {
-    CmdLineParser parser("xmake", VERSION_STRING);
+    CmdLineParser parser("xmake", "xit's little make tool", VERSION_STRING);
     parser.RegisterOption("-h", "Show help message");
     parser.RegisterOption("--version", "Show version information");
     parser.RegisterOption("-v", "Enable verbose output");
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     }
     if (parser.IsOptionSet("--version"))
     {
-        std::cout << "Version: " << VERSION_STRING << std::endl;
+        parser.PrintVersion();
         return 0;
     }
 

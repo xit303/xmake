@@ -2,8 +2,8 @@
 #include <iostream>
 #include <algorithm>
 
-CmdLineParser::CmdLineParser(const std::string &programName, const std::string &programVersion)
-    : programName(programName), programVersion(programVersion)
+CmdLineParser::CmdLineParser(const std::string &programName, const std::string &description, const std::string &programVersion)
+    : programName(programName), description(description), programVersion(programVersion)
 {
 }
 
@@ -90,9 +90,8 @@ void CmdLineParser::RegisterOption(const std::string &option, const std::string 
 
 void CmdLineParser::PrintHelp() const
 {
-    std::cout << std::endl << programName
-              << " version " << programVersion << std::endl
-              << std::endl;
+    PrintVersion();
+
     std::cout << "Usage: xmake [options]" << std::endl
               << std::endl;
     std::cout << "Options:" << std::endl;
@@ -103,4 +102,9 @@ void CmdLineParser::PrintHelp() const
         std::cout << "  " << option.first;
         std::cout << std::string(20 - option.first.size(), ' ') << option.second << std::endl;
     }
+}
+
+void CmdLineParser::PrintVersion() const
+{
+    std::cout << programName << " - " << description << " - " << " version " << programVersion << std::endl;
 }
