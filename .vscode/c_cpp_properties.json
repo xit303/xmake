@@ -10,7 +10,7 @@
             ],
             "compilerPath": "C:\\msys64\\ucrt64\\bin\\gcc.exe", // Update this path to your GCC installation
             "cStandard": "c11",
-            "cppStandard": "c++17",
+            "cppStandard": "c++23",
             "intelliSenseMode": "windows-gcc-x64"
         },
         {
@@ -23,7 +23,7 @@
             ],
             "compilerPath": "/usr/bin/gcc", // Update this path to your GCC installation
             "cStandard": "c11",
-            "cppStandard": "c++17",
+            "cppStandard": "c++23",
             "intelliSenseMode": "linux-gcc-x64"
         }
     ],
