@@ -7,10 +7,10 @@
 int main(int argc, char **argv)
 {
     CmdLineParser parser("xmake", "xit's little make tool", VERSION_STRING);
-    parser.RegisterOption("-h", "Show help message");
+    parser.RegisterOption("--help", "Show help message");
     parser.RegisterOption("--version", "Show version information");
-    parser.RegisterOption("-v", "Enable verbose output");
     parser.RegisterOption("--xmakefile", "Path to the xmakefile to use");
+    parser.RegisterOption("-v", "Enable verbose output");
     parser.RegisterOption("clean", "Clean all build files (clean_commands needs to be set in xakefile)");
     parser.RegisterOption("run", "Run the output file after building");
     parser.RegisterOption("install", "Install the output file");
@@ -52,8 +52,6 @@ int main(int argc, char **argv)
             std::cout << "No xmakefile specified, using default." << std::endl;
     }
 
-
-    
     XMake xmake(parser);
     if (!xmake.Init(xmakefilePath))
     {
