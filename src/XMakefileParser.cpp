@@ -377,7 +377,35 @@ void XMakefileParser::FindFiles(const std::string &path, const std::vector<std::
 
         for (const auto &excludePath : excludePaths)
         {
-            if (entry.path().string().find(excludePath) != std::string::npos)
+            // check if exclude path has * at the beginning and the end
+            if (excludePath[0] == '*' && excludePath[excludePath.size() - 1] == '*')
+            {
+                // check if the path contains the exclude path
+                if (entry.path().string().find(excludePath.substr(1, excludePath.size() - 2)) != std::string::npos)
+                {
+                    isExcluded = true;
+                    break;
+                }
+            }
+            else if (excludePath[0] == '*')
+            {
+                // check if the path ends with the exclude path
+                if (entry.path().string().ends_with(excludePath.substr(1)))
+                {
+                    isExcluded = true;
+                    break;
+                }
+            }
+            else if (excludePath[excludePath.size() - 1] == '*')
+            {
+                // check if the path starts with the exclude path
+                if (entry.path().string().starts_with(excludePath.substr(0, excludePath.size() - 1)))
+                {
+                    isExcluded = true;
+                    break;
+                }
+            }
+            else if (entry.path().string().find(excludePath) != std::string::npos)
             {
                 isExcluded = true;
                 break;
