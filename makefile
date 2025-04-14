@@ -60,7 +60,7 @@ PREDEFINED_SYMBOLS = \
 # Flags
 ################################################################################
 
-ALL_FLAGS = -g -std=c++23 -Wall -Wextra 
+ALL_FLAGS = -g -std=c++23 -Wall -Wextra -pedantic -ffunction-sections -fdata-sections -MMD -Os
 LINKER_FLAGS = $(PREDEFINED_SYMBOLS)
 
 ASM_FLAGS = $(ALL_FLAGS) $(PREDEFINED_SYMBOLS) $(INCLUDES)
