@@ -148,7 +148,20 @@ void XMakefileParser::CreateBuildList()
         {
             std::filesystem::path buildDirPath = currentConfig.BuildDir + "/" + currentConfig.BuildType;
             std::filesystem::path sourceFilePath = sourceFile;
-            std::filesystem::path objectFilePath = buildDirPath / sourceFilePath.filename();
+            std::filesystem::path objectFilePath;
+            
+            // check if source path is relative or absolute
+            if (sourceFile[0] != '/' && sourceFile[1] != ':')
+            {
+                // relative path
+                objectFilePath = buildDirPath / sourceFilePath;
+            }
+            else
+            {
+                // absolute path
+                objectFilePath = buildDirPath / sourceFilePath.filename();
+            }
+            
             std::string substring = objectFilePath.string().substr(0, objectFilePath.string().find_last_of('.'));
             objectFile = substring + ".o";
         }
