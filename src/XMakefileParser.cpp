@@ -259,6 +259,8 @@ RebuildScheme XMakefileParser::CheckRebuild()
             std::cout << "Libraries changed, linking..." << std::endl;
         return RebuildScheme::Link;
     }
+    // TODO check if makefile has changed
+
     return RebuildScheme::None;
 }
 
@@ -363,7 +365,9 @@ void XMakefileParser::UpdateFileLists()
         if (sourcePath[0] != '/' && sourcePath[1] != ':')
         {
             // relative path, convert to absolute
-            std::filesystem::path absPath = std::filesystem::current_path() / sourcePath;
+            // TODO: Check if this also works on Linux
+            //std::filesystem::path absPath = std::filesystem::current_path() / sourcePath;
+            std::filesystem::path absPath = sourcePath;
             FindSources(absPath.string(), extensions);
         }
         else
