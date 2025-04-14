@@ -4,19 +4,31 @@
 
 static bool IsValidCommand(const std::string &command)
 {
-    // Allow alphanumeric characters, underscores, dashes, slashes, spaces, dots, and plus signs
-    static const std::regex validCommandRegex("^[a-zA-Z0-9_.+/\\-=: ]+$");
-    return std::regex_match(command, validCommandRegex);
+    // Disallow dangerous characters or patterns commonly used in command injection
+    static const std::regex dangerousPatternRegex("[;&|><`]");
+    std::smatch match;
+
+    if (std::regex_search(command, match, dangerousPatternRegex))
+    {
+        // Print the first invalid character and its position
+        std::cerr << "Error: Invalid character '" << match.str(0)
+                  << "' found at position " << match.position(0) << " in command: " << std::endl;
+
+        std::cerr << command << std::endl;
+        std::cerr << "The following symbols are not allowed for security reasons. \"[;&|><`]\"" << std::endl;
+
+        return false; // Command contains potentially dangerous characters
+    }
+
+    // Additional checks can be added here if needed
+    return true;
 }
 
 // Updated system calls to validate commands before execution
 bool ExecuteCommand(const std::string &command)
 {
     if (!IsValidCommand(command))
-    {
-        std::cerr << "Error: Invalid command detected: " << command << std::endl;
         return false;
-    }
 
     try
     {
