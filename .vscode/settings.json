@@ -1,5 +1,6 @@
 {
     "C_Cpp.default.compilerPath": "C:\\msys64\\ucrt64\\bin\\gcc.exe",
+    "C_Cpp.autoAddFileAssociations": false,
     "workbench.colorCustomizations": {
         "tab.activeBackground": "#56585d",
         "tab.activeBorder": "#ffffff",
