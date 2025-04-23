@@ -1,12 +1,20 @@
 #pragma once
 
+//**************************************************************
+// Includes
+//**************************************************************
+
 #include "XMakefile.h"
 #include <atomic>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <chrono>
 #include <map>
+
+//**************************************************************
+// Structures
+//**************************************************************
 
 struct BuildStruct
 {
@@ -20,6 +28,10 @@ struct BuildStruct
     }
 };
 
+//**************************************************************
+// Enums
+//**************************************************************
+
 enum RebuildScheme
 {
     None,
@@ -27,6 +39,10 @@ enum RebuildScheme
     Sources,
     Link
 };
+
+//**************************************************************
+// Classes
+//**************************************************************
 
 class XMakefileParser
 {
@@ -54,12 +70,11 @@ private:
     XMakefileConfig currentConfig; // Current configuration being parsed
 
     void UpdateFileLists();
-
     void UpdateLists(const std::vector<std::string> &paths, const std::vector<std::string> &extensions, std::vector<std::string> &outputFiles);
     void FindFiles(const std::string &path, const std::vector<std::string> &extensions, std::vector<std::string> &outputFiles);
 
     bool CheckFileModifications(const std::vector<std::string> &files, const std::string &fileType);
-    
+
     std::string FileTimestampToString(const std::filesystem::file_time_type &fileTime);
     std::filesystem::file_time_type StringToFileTimestamp(const std::string &timestamp);
 
@@ -67,22 +82,20 @@ public:
     XMakefileParser();
 
     void SetVerbose(bool verbose) { this->verbose = verbose; }
-
-    bool Parse(const std::string &path);
-
     std::string GetXMakefileName() const { return xmakefileName; }
     std::string GetXMakefileDir() const { return xmakefileDir; }
     std::string GetXMakefileContent() const { return xmakefileContent; }
     std::string GetOutputFilename() const { return currentConfig.OutputFilename; }
     XMakefileConfig GetCurrentConfig() const { return currentConfig; }
+    const std::string &GetLinkerString() const { return linkString; }
+    const std::vector<BuildStruct> &GetBuildStructures() { return buildStructures; }
+
+    bool Parse(const std::string &path);
 
     void CreateBuildList();
-    void ResetBuildIndex() { buildStructureIndex = 0; }
+    void ResetBuildIndex();
 
     RebuildScheme CheckRebuild();
-
-    const std::vector<BuildStruct> &GetBuildStructures() { return buildStructures; }
-    const std::string &GetLinkerString();
 
     void LoadBuildTimes();
     void SaveBuildTimes();

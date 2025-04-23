@@ -1,5 +1,13 @@
+//**************************************************************
+// Includes
+//**************************************************************
+
 #include "xmake.h"
 #include "SecurityHelper.h"
+
+//**************************************************************
+// Public functions
+//**************************************************************
 
 XMake::XMake(const CmdLineParser &cmdLineParser) : cmdLineParser(cmdLineParser)
 {
@@ -297,6 +305,10 @@ void XMake::Uninstall()
 
     std::cout << "Uninstalled successfully." << std::endl;
 }
+
+//**************************************************************
+// Private functions
+//**************************************************************
 
 void XMake::SaveBuildTimes()
 {

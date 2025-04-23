@@ -1,6 +1,14 @@
+//**************************************************************
+// Includes
+//**************************************************************
+
 #include "CmdLineParser.h"
 #include <iostream>
 #include <algorithm>
+
+//**************************************************************
+// Public functions
+//**************************************************************
 
 CmdLineParser::CmdLineParser(const std::string &programName, const std::string &description, const std::string &programVersion)
     : programName(programName), description(description), programVersion(programVersion)

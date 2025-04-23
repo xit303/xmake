@@ -1,8 +1,16 @@
+//**************************************************************
+// Includes
+//**************************************************************
+
 #include "XMakefileParser.h"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+
+//**************************************************************
+// Public functions
+//**************************************************************
 
 XMakefileParser::XMakefileParser()
 {
@@ -233,10 +241,9 @@ void XMakefileParser::CreateBuildList()
     std::cout << "Linker string: " << linkString << std::endl;
 #endif
 }
-
-const std::string &XMakefileParser::GetLinkerString()
+void XMakefileParser::ResetBuildIndex()
 {
-    return linkString;
+    buildStructureIndex = 0;
 }
 
 RebuildScheme XMakefileParser::CheckRebuild()
@@ -333,6 +340,10 @@ void XMakefileParser::SaveBuildTimes()
         std::cout << "Build times saved to: " << buildTimeFile << std::endl;
 }
 
+//**************************************************************
+// Private functions
+//**************************************************************
+
 void XMakefileParser::UpdateFileLists()
 {
     // Find all header files in include paths
@@ -344,7 +355,6 @@ void XMakefileParser::UpdateFileLists()
     // Find all library files in library paths
     UpdateLists(currentConfig.LibraryPaths, {".a", ".so", ".dll"}, libraryFiles);
 }
-
 void XMakefileParser::UpdateLists(const std::vector<std::string> &paths, const std::vector<std::string> &extensions, std::vector<std::string> &outputFiles)
 {
     outputFiles.clear(); // Clear previous files
@@ -365,7 +375,6 @@ void XMakefileParser::UpdateLists(const std::vector<std::string> &paths, const s
         }
     }
 }
-
 void XMakefileParser::FindFiles(const std::string &path, const std::vector<std::string> &extensions, std::vector<std::string> &outputFiles)
 {
     if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path))
