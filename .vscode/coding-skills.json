@@ -1,0 +1,17 @@
+{
+    "skillLevels": {
+        "javascript": "intermediate",
+        "html": "intermediate",
+        "css": "intermediate",
+        "typescript": "beginner",
+        "php": "beginner",
+        "c": "advanced",
+        "cpp": "advanced",
+        "python": "novice",
+        "java": "novice",
+        "csharp": "advanced",
+        "freeRTOS": "advanced",
+        "embedded": "advanced",
+        "git": "intermediate"
+    }
+}

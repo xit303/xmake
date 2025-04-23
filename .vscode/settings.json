@@ -1,104 +1,36 @@
 {
-    "files.associations": {
-        "string": "cpp",
-        "errorflags.h": "c",
-        "jsondatatests.h": "c",
-        "any": "cpp",
-        "array": "cpp",
-        "atomic": "cpp",
-        "barrier": "cpp",
-        "bit": "cpp",
-        "*.tcc": "cpp",
-        "bitset": "cpp",
-        "cctype": "cpp",
-        "cfenv": "cpp",
-        "charconv": "cpp",
-        "chrono": "cpp",
-        "cinttypes": "cpp",
-        "clocale": "cpp",
-        "cmath": "cpp",
-        "codecvt": "cpp",
-        "compare": "cpp",
-        "concepts": "cpp",
-        "condition_variable": "cpp",
-        "coroutine": "cpp",
-        "csetjmp": "cpp",
-        "csignal": "cpp",
-        "cstdarg": "cpp",
-        "cstddef": "cpp",
-        "cstdint": "cpp",
-        "cstdio": "cpp",
-        "cstdlib": "cpp",
-        "cstring": "cpp",
-        "ctime": "cpp",
-        "cuchar": "cpp",
-        "cwchar": "cpp",
-        "cwctype": "cpp",
-        "deque": "cpp",
-        "forward_list": "cpp",
-        "list": "cpp",
-        "map": "cpp",
-        "set": "cpp",
-        "unordered_map": "cpp",
-        "unordered_set": "cpp",
-        "vector": "cpp",
-        "exception": "cpp",
-        "algorithm": "cpp",
-        "functional": "cpp",
-        "iterator": "cpp",
-        "memory": "cpp",
-        "memory_resource": "cpp",
-        "netfwd": "cpp",
-        "numeric": "cpp",
-        "optional": "cpp",
-        "random": "cpp",
-        "ratio": "cpp",
-        "regex": "cpp",
-        "source_location": "cpp",
-        "string_view": "cpp",
-        "system_error": "cpp",
-        "tuple": "cpp",
-        "type_traits": "cpp",
-        "utility": "cpp",
-        "rope": "cpp",
-        "slist": "cpp",
-        "format": "cpp",
-        "fstream": "cpp",
-        "future": "cpp",
-        "generator": "cpp",
-        "initializer_list": "cpp",
-        "iomanip": "cpp",
-        "iosfwd": "cpp",
-        "iostream": "cpp",
-        "istream": "cpp",
-        "latch": "cpp",
-        "limits": "cpp",
-        "new": "cpp",
-        "numbers": "cpp",
-        "ostream": "cpp",
-        "print": "cpp",
-        "ranges": "cpp",
-        "scoped_allocator": "cpp",
-        "semaphore": "cpp",
-        "shared_mutex": "cpp",
-        "span": "cpp",
-        "spanstream": "cpp",
-        "sstream": "cpp",
-        "stacktrace": "cpp",
-        "stdexcept": "cpp",
-        "stdfloat": "cpp",
-        "stop_token": "cpp",
-        "streambuf": "cpp",
-        "syncstream": "cpp",
-        "text_encoding": "cpp",
-        "thread": "cpp",
-        "complex": "cpp",
-        "typeindex": "cpp",
-        "typeinfo": "cpp",
-        "valarray": "cpp",
-        "variant": "cpp",
-        "mutex": "cpp",
-        "__nullptr": "cpp"
+    "C_Cpp.default.compilerPath": "C:\\msys64\\ucrt64\\bin\\gcc.exe",
+    "workbench.colorCustomizations": {
+        "tab.activeBackground": "#56585d",
+        "tab.activeBorder": "#ffffff",
+        "tab.activeBorderTop": "#ffffff"
     },
-    "C_Cpp.default.compilerPath": "C:\\msys64\\ucrt64\\bin\\gcc.exe"
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "text": "Performance and stability are crucial. uses ArduinoJson v7.2.0."
+        },
+        {
+            "text": "Use camelCase for class fields and local variables; CamelCase for structure fields."
+        },
+        {
+            "text": "Use UpperCaseCamelCase for functions/methods."
+        },
+        {
+            "text": "Use Unity for tests; create many, considering data types and variables."
+        },
+        {
+            "text": "Explain based on skill levels in .vscode/coding-skills.json; use concise sentences."
+        },
+        {
+            "file": ".vscode/coding-skills.json"
+        },
+        {
+            "text": "Ensure all code follows the specified naming conventions and testing guidelines."
+        }
+    ],
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "text": "Use conventional commit message format."
+        }
+    ],
 }
