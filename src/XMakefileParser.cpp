@@ -149,7 +149,7 @@ void XMakefileParser::CreateBuildList()
             std::filesystem::path buildDirPath = currentConfig.BuildDir + "/" + currentConfig.BuildType;
             std::filesystem::path sourceFilePath = sourceFile;
             std::filesystem::path objectFilePath;
-            
+
             // check if source path is relative or absolute
             if (sourceFile[0] != '/' && sourceFile[1] != ':')
             {
@@ -161,7 +161,7 @@ void XMakefileParser::CreateBuildList()
                 // absolute path
                 objectFilePath = buildDirPath / sourceFilePath.filename();
             }
-            
+
             std::string substring = objectFilePath.string().substr(0, objectFilePath.string().find_last_of('.'));
             objectFile = substring + ".o";
         }
@@ -335,52 +335,38 @@ void XMakefileParser::SaveBuildTimes()
 
 void XMakefileParser::UpdateFileLists()
 {
-    headerFiles.clear();
-    sourceFiles.clear();
-    libraryFiles.clear();
-
     // Find all header files in include paths
-    for (const auto &includePath : currentConfig.IncludePaths)
+    UpdateLists(currentConfig.IncludePaths, {".h", ".hpp"}, headerFiles);
+
+    // Find all source files in source paths
+    UpdateLists(currentConfig.SourcePaths, {".cpp", ".c", ".cc", ".cxx", ".m", ".mm"}, sourceFiles);
+
+    // Find all library files in library paths
+    UpdateLists(currentConfig.LibraryPaths, {".a", ".so", ".dll"}, libraryFiles);
+}
+
+void XMakefileParser::UpdateLists(const std::vector<std::string> &paths, const std::vector<std::string> &extensions, std::vector<std::string> &outputFiles)
+{
+    outputFiles.clear(); // Clear previous files
+
+    for (const auto &includePath : paths)
     {
         // check if include path is relative or absolute
         if (includePath[0] != '/' && includePath[1] != ':')
         {
             // relative path, convert to absolute
             std::filesystem::path absPath = std::filesystem::current_path() / includePath;
-            FindHeaders(absPath.string(), {".h", ".hpp"});
+            FindFiles(absPath.string(), extensions, outputFiles);
         }
         else
         {
             // absolute path
-            FindHeaders(includePath, {".h", ".hpp"});
+            FindFiles(includePath, extensions, outputFiles);
         }
     }
-
-    const std::vector<std::string> extensions = {".cpp", ".c", ".cc", ".cxx", ".m", ".mm"};
-
-    // Find all files in source paths
-    for (const auto &sourcePath : currentConfig.SourcePaths)
-    {
-        // check if source path is relative or absolute
-        if (sourcePath[0] != '/' && sourcePath[1] != ':')
-        {
-            // relative path, convert to absolute
-            // TODO: Check if this also works on Linux
-            //std::filesystem::path absPath = std::filesystem::current_path() / sourcePath;
-            std::filesystem::path absPath = sourcePath;
-            FindSources(absPath.string(), extensions);
-        }
-        else
-        {
-            // absolute path
-            FindSources(sourcePath, extensions);
-        }
-    }
-
-    // TODO find all library files
 }
 
-void XMakefileParser::FindFiles(const std::string &path, const std::vector<std::string> &extensions, const std::vector<std::string> &excludePaths, const std::vector<std::string> &excludeFiles, std::vector<std::string> &outputFiles)
+void XMakefileParser::FindFiles(const std::string &path, const std::vector<std::string> &extensions, std::vector<std::string> &outputFiles)
 {
     if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path))
     {
@@ -392,7 +378,7 @@ void XMakefileParser::FindFiles(const std::string &path, const std::vector<std::
     {
         bool isExcluded = false;
 
-        for (const auto &excludePath : excludePaths)
+        for (const auto &excludePath : currentConfig.ExcludePaths)
         {
             // check if exclude path has * at the beginning and the end
             if (excludePath[0] == '*' && excludePath[excludePath.size() - 1] == '*')
@@ -434,14 +420,14 @@ void XMakefileParser::FindFiles(const std::string &path, const std::vector<std::
 
         if (entry.is_directory())
         {
-            FindFiles(entry.path().string(), extensions, excludePaths, excludeFiles, outputFiles);
+            FindFiles(entry.path().string(), extensions, outputFiles);
         }
         else if (entry.is_regular_file())
         {
             std::string ext = entry.path().extension().string();
             if (std::find(extensions.begin(), extensions.end(), ext) != extensions.end())
             {
-                for (const auto &excludeFile : excludeFiles)
+                for (const auto &excludeFile : currentConfig.ExcludeFiles)
                 {
                     if (entry.path().filename() == excludeFile)
                     {
@@ -457,18 +443,6 @@ void XMakefileParser::FindFiles(const std::string &path, const std::vector<std::
             }
         }
     }
-}
-void XMakefileParser::FindHeaders(const std::string &path, const std::vector<std::string> &extensions)
-{
-    FindFiles(path, extensions, currentConfig.ExcludePaths, currentConfig.ExcludeFiles, headerFiles);
-}
-void XMakefileParser::FindSources(const std::string &path, const std::vector<std::string> &extensions)
-{
-    FindFiles(path, extensions, currentConfig.ExcludePaths, currentConfig.ExcludeFiles, sourceFiles);
-}
-void XMakefileParser::FindLibraries(const std::string &path, const std::vector<std::string> &extensions)
-{
-    FindFiles(path, extensions, currentConfig.ExcludePaths, currentConfig.ExcludeFiles, libraryFiles);
 }
 
 bool XMakefileParser::CheckFileModifications(const std::vector<std::string> &files, const std::string &fileType)

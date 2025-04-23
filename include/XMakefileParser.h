@@ -55,10 +55,8 @@ private:
 
     void UpdateFileLists();
 
-    void FindFiles(const std::string &path, const std::vector<std::string> &extensions, const std::vector<std::string> &excludePaths, const std::vector<std::string> &excludeFiles, std::vector<std::string> &outputFiles);
-    void FindHeaders(const std::string &path, const std::vector<std::string> &extensions);
-    void FindSources(const std::string &path, const std::vector<std::string> &extensions);
-    void FindLibraries(const std::string &path, const std::vector<std::string> &extensions);
+    void UpdateLists(const std::vector<std::string> &paths, const std::vector<std::string> &extensions, std::vector<std::string> &outputFiles);
+    void FindFiles(const std::string &path, const std::vector<std::string> &extensions, std::vector<std::string> &outputFiles);
 
     bool CheckFileModifications(const std::vector<std::string> &files, const std::string &fileType);
     
