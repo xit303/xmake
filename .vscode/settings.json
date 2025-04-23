@@ -17,7 +17,7 @@
             "text": "Use UpperCaseCamelCase for functions/methods."
         },
         {
-            "text": "Use Unity for tests; create many, considering data types and variables."
+            "text": "Use google test for tests; create many, considering data types and variables."
         },
         {
             "text": "Explain based on skill levels in .vscode/coding-skills.json; use concise sentences."
