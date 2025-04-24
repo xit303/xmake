@@ -53,7 +53,8 @@ bool XMakefileParser::Parse(const std::string &path)
 
         if (xmakefile.configs.empty())
         {
-            Logger::LogWarning("No configurations found in the xmakefile.");
+            Logger::LogError("No configurations found in the xmakefile.");
+            return false;
         }
         else
         {
