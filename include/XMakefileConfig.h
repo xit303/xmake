@@ -18,6 +18,7 @@ public:
     std::string Name;
     std::string BuildType;
     std::string BuildDir;
+    std::string OutputDir;
     std::string OutputFilename;
     std::string CompilerPath;
     std::string Compiler;
@@ -53,6 +54,15 @@ public:
         CXXCompilerFlags = doc["cxx_flags"].as<std::string>();
         Linker = doc["linker"].as<std::string>();
         LinkerFlags = doc["linker_flags"].as<std::string>();
+
+        if (!BuildDir.empty() && !Name.empty())
+            OutputDir = BuildDir + "/" + Name;
+        else if (!BuildDir.empty())
+            OutputDir = BuildDir;
+        else if (!Name.empty())
+            OutputDir = Name;
+        else
+            OutputDir = "";
 
         // Extract include paths
         JsonArray includePaths = doc["include_paths"].as<JsonArray>();

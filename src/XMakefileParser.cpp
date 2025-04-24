@@ -152,9 +152,8 @@ void XMakefileParser::CreateBuildList()
         std::string objectFile;
 
         // replace path if object file with build dir
-        if (!currentConfig.BuildDir.empty())
+        if (!currentConfig.OutputDir.empty())
         {
-            std::filesystem::path buildDirPath = currentConfig.BuildDir + "/" + currentConfig.BuildType;
             std::filesystem::path sourceFilePath = sourceFile;
             std::filesystem::path objectFilePath;
 
@@ -162,12 +161,12 @@ void XMakefileParser::CreateBuildList()
             if (sourceFile[0] != '/' && sourceFile[1] != ':')
             {
                 // relative path
-                objectFilePath = buildDirPath / sourceFilePath;
+                objectFilePath = currentConfig.OutputDir / sourceFilePath;
             }
             else
             {
                 // absolute path
-                objectFilePath = buildDirPath / sourceFilePath.filename();
+                objectFilePath = currentConfig.OutputDir / sourceFilePath.filename();
             }
 
             std::string substring = objectFilePath.string().substr(0, objectFilePath.string().find_last_of('.'));
@@ -204,14 +203,7 @@ void XMakefileParser::CreateBuildList()
     }
 
     // Add output filename
-    if (!currentConfig.BuildDir.empty() && !currentConfig.BuildType.empty())
-        linkString += " -o " + currentConfig.BuildDir + "/" + currentConfig.BuildType + "/" + currentConfig.OutputFilename;
-    else if (!currentConfig.BuildDir.empty())
-        linkString += " -o " + currentConfig.BuildDir + "/" + currentConfig.OutputFilename;
-    else if (!currentConfig.BuildType.empty())
-        linkString += " -o " + currentConfig.BuildType + "/" + currentConfig.OutputFilename;
-    else
-        linkString += " -o " + currentConfig.OutputFilename;
+    linkString += " -o " + currentConfig.OutputDir + "/" + currentConfig.OutputFilename;
 
     // Add library paths
     for (const auto &libraryPath : currentConfig.LibraryPaths)
@@ -274,7 +266,7 @@ RebuildScheme XMakefileParser::CheckRebuild()
 void XMakefileParser::LoadBuildTimes()
 {
     // Load the last build times from a file in the build directory
-    std::string buildTimeFile = currentConfig.BuildDir + "/" + currentConfig.BuildType + "/build_times.txt";
+    std::string buildTimeFile = currentConfig.OutputDir + "/build_times.txt";
     std::ifstream file(buildTimeFile);
     if (!file.is_open())
     {
@@ -323,7 +315,7 @@ void XMakefileParser::SaveBuildTimes()
     }
 
     // Save the last build times to a file in the build directory
-    std::string buildTimeFile = currentConfig.BuildDir + "/" + currentConfig.BuildType + "/build_times.txt";
+    std::string buildTimeFile = currentConfig.OutputDir + "/build_times.txt";
     std::ofstream file(buildTimeFile);
     if (!file.is_open())
     {

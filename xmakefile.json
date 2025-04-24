@@ -7,7 +7,8 @@
     "configurations": [
         {
             "name": "Debug",
-            "build_type": "Debug",
+            "build_types": "Options are: Executable, StaticLibrary, SharedLibrary",
+            "build_type": "Executable",
             "build_dir": ".bin",
             "output_filename": "xmake",
             "compiler_path": "",

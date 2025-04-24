@@ -234,7 +234,7 @@ void XMake::Run()
     }
 
     // Execute the output file
-    std::string runCommand = "./" + config.BuildDir + "/" + config.BuildType + "/" + config.OutputFilename;
+    std::string runCommand = "./" + config.OutputDir + "/" + config.OutputFilename;
     if (!ExecuteCommand(runCommand))
     {
         std::cerr << "Error: Failed to run the output file." << std::endl;
@@ -272,7 +272,7 @@ void XMake::Install()
 
             if (!ExecuteCommand(command))
             {
-                std::cerr << "Error: Install command failed." << std::endl;
+                std::cerr << "Error: Install command failed. Need sudo?" << std::endl;
                 return;
             }
         }

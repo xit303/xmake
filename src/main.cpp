@@ -70,7 +70,6 @@ int main(int argc, char **argv)
     if (parser.IsOptionSet("clean"))
     {
         xmake.Clean();
-        std::cout << "Cleaned build files." << std::endl;
         return 0;
     }
 
