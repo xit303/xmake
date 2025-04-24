@@ -3,6 +3,7 @@
 //**************************************************************
 
 #include "SecurityHelper.h"
+#include "Logger.h"
 #include <iostream>
 #include <regex>
 
@@ -26,13 +27,19 @@ bool ExecuteCommand(const std::string &command)
         int result = std::system(command.c_str());
         if (result != 0)
         {
-            std::cerr << "Error: Command execution failed with code " << result << std::endl;
+            Logger::LogError("Command execution failed with code: " + std::to_string(result));
             return false;
         }
     }
     catch (const std::exception &e)
     {
-        std::cerr << "Exception occurred while executing command: " << e.what() << std::endl;
+        // Handle any exceptions that may occur during command execution
+        Logger::LogError("Exception during command execution: " + std::string(e.what()));
+        return false;
+    }
+    catch (...)
+    {
+        Logger::LogError("Unknown error occurred during command execution.");
         return false;
     }
 
@@ -43,25 +50,36 @@ bool ExecuteCommand(const std::string &command)
 // Local functions
 //**************************************************************
 
-static bool IsValidCommand(const std::string &command)
+static bool IsValidCommand(const std::string &input)
 {
-    // Disallow dangerous characters or patterns commonly used in command injection
-    static const std::regex dangerousPatternRegex("[;&|><`]");
-    std::smatch match;
-
-    if (std::regex_search(command, match, dangerousPatternRegex))
+    try
     {
-        // Print the first invalid character and its position
-        std::cerr << "Error: Invalid character '" << match.str(0)
-                  << "' found at position " << match.position(0) << " in command: " << std::endl;
+        // Disallow dangerous characters or patterns commonly used in command injection
+        static const std::regex dangerousPatternRegex("[;&|><`]");
+        std::smatch match;
 
-        std::cerr << command << std::endl;
-        std::cerr << "The following symbols are not allowed for security reasons. \"[;&|><`]\"" << std::endl;
-
-        return false; // Command contains potentially dangerous characters
+        if (std::regex_search(input, match, dangerousPatternRegex))
+        {
+            // Print the first invalid character and its position
+            Logger::LogError("Invalid character '" + match.str(0) +
+                            "' found at position " + std::to_string(match.position(0)) +
+                            " in input: " + input);
+            Logger::LogError("The following symbols are not allowed for security reasons. \"[;&|><`]\"");
+        }
+        else
+        {
+            Logger::LogInfo("Input validation completed successfully.");
+            return true;
+        }
     }
-
-    // Additional checks can be added here if needed
-    return true;
+    catch (const std::exception &e)
+    {
+        Logger::LogError(std::string("Exception during input validation: ") + e.what());
+    }
+    catch (...)
+    {
+        Logger::LogError("Unknown error occurred during input validation.");
+    }
+    return false;
 }
 
