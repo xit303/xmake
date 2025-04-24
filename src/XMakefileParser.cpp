@@ -193,28 +193,62 @@ void XMakefileParser::CreateBuildList()
         buildStructures.push_back(buildStruct);
     }
 
-    // Create the linker string
-    linkString = (currentConfig.CompilerPath.empty() ? "" : currentConfig.CompilerPath + "/") + currentConfig.Linker;
-
-    // Add object files to the linker string
-    for (const auto &objectFile : objectFiles)
+    // Create the linker string based on the build type
+    if (currentConfig.BuildType == "Executable")
     {
-        linkString += " " + objectFile;
-    }
+        linkString = (currentConfig.CompilerPath.empty() ? "" : currentConfig.CompilerPath + "/") + currentConfig.Linker;
 
-    // Add output filename
-    linkString += " -o " + currentConfig.OutputDir + "/" + currentConfig.OutputFilename;
+        // Add object files to the linker string
+        for (const auto &objectFile : objectFiles)
+        {
+            linkString += " " + objectFile;
+        }
+
+        // Add output filename
+        linkString += " -o " + currentConfig.OutputDir + "/" + currentConfig.OutputFilename;
+    }
+    else if (currentConfig.BuildType == "StaticLibrary")
+    {
+        linkString = (currentConfig.CompilerPath.empty() ? "" : currentConfig.CompilerPath + "/") + currentConfig.Archiver;
+
+        // Add archiver flags
+        linkString += " " + currentConfig.ArchiverFlags;
+
+        // Add object files to the static library
+        for (const auto &objectFile : objectFiles)
+        {
+            linkString += " " + objectFile;
+        }
+    }
+    else if (currentConfig.BuildType == "SharedLibrary")
+    {
+        linkString = (currentConfig.CompilerPath.empty() ? "" : currentConfig.CompilerPath + "/") + currentConfig.Linker;
+
+        // Add shared library flags
+        linkString += " -shared";
+
+        // Add object files to the linker string
+        for (const auto &objectFile : objectFiles)
+        {
+            linkString += " " + objectFile;
+        }
+
+        // Add output filename
+        linkString += " -o " + currentConfig.OutputDir + "/" + currentConfig.OutputFilename;
+    }
 
     // Add library paths
     for (const auto &libraryPath : currentConfig.LibraryPaths)
     {
         linkString += " -L" + libraryPath;
     }
+
     // Add libraries
     for (const auto &library : currentConfig.Libraries)
     {
         linkString += " -l" + library;
     }
+
     // Add include paths
     for (const auto &includePath : currentConfig.IncludePaths)
     {

@@ -28,6 +28,9 @@ public:
     std::string Linker;
     std::string LinkerFlags;
 
+    std::string Archiver;
+    std::string ArchiverFlags;
+
     std::vector<std::string> IncludePaths;
     std::vector<std::string> LibraryPaths;
     std::vector<std::string> Libraries;
@@ -54,6 +57,8 @@ public:
         CXXCompilerFlags = doc["cxx_flags"].as<std::string>();
         Linker = doc["linker"].as<std::string>();
         LinkerFlags = doc["linker_flags"].as<std::string>();
+        Archiver = doc["archiver"].as<std::string>();
+        ArchiverFlags = doc["archiver_flags"].as<std::string>();
 
         if (!BuildDir.empty() && !Name.empty())
             OutputDir = BuildDir + "/" + Name;

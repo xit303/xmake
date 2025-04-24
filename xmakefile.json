@@ -14,6 +14,8 @@
             "compiler_path": "",
             "compiler": "g++",
             "linker": "g++",
+            "archiver": "ar",
+            "archiver_flags": "rcs",
             "c_flags": "-std=c11 -Wall -Wextra -pedantic",
             "cxx_flags": "-g -std=c++23 -Wall -Wextra -pedantic -ffunction-sections -fdata-sections -MMD -Os",
             "linker_flags": "-lm -lstdc++",
