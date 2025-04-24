@@ -66,6 +66,37 @@ bool XMake::Build()
     std::atomic<int> numberOfBuilds = 0;
     std::atomic<bool> interruptBuild = false;
 
+    // Determine the number of threads to use for parallel builds
+    unsigned int numThreads = 0;
+    if (cmdLineParser.IsOptionSet("-j"))
+    {
+        std::string jValue = cmdLineParser.GetOptionValue("-j");
+        if (!jValue.empty())
+        {
+            try
+            {
+                numThreads = std::stoi(jValue);
+            }
+            catch (const std::invalid_argument &)
+            {
+                std::cerr << "Invalid value for -j option. Using hardware concurrency." << std::endl;
+            }
+        }
+        if (numThreads == 0)
+        {
+            numThreads = std::thread::hardware_concurrency();
+        }
+    }
+    else
+    {
+        numThreads = 1; // Default to 1 thread if -j is not specified
+    }
+
+    if (numThreads == 0) // Fallback if hardware_concurrency is not available
+    {
+        numThreads = 2; // Default to 2 threads
+    }
+
     if (rebuildScheme == RebuildScheme::Full || rebuildScheme == RebuildScheme::Sources)
     {
         for (const BuildStruct &buildStruct : parser.GetBuildStructures())
@@ -121,10 +152,23 @@ bool XMake::Build()
                 numberOfBuilds++;
 
                 return true; });
+
+            // Limit the number of active threads to numThreads
+            if (threads.size() >= numThreads)
+            {
+                for (auto &thread : threads)
+                {
+                    if (thread.joinable())
+                    {
+                        thread.join();
+                    }
+                }
+                threads.clear();
+            }
         }
     }
 
-    // Wait for all threads to finish
+    // Wait for all remaining threads to finish
     for (auto &thread : threads)
     {
         if (thread.joinable())
