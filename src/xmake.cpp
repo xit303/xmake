@@ -89,7 +89,7 @@ bool XMake::Build()
     }
     else
     {
-        numThreads = 1; // Default to 1 thread if -j is not specified
+        numThreads = std::thread::hardware_concurrency();
     }
 
     if (numThreads == 0) // Fallback if hardware_concurrency is not available
