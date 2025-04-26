@@ -166,6 +166,19 @@ void XMakefileParser::CreateBuildList()
             buildString += " -I" + includePath;
         }
 
+        // Add defines
+        for (const auto &define : currentConfig.Defines)
+        {
+            if (define.starts_with("-D"))
+            {
+                buildString += " " + define;
+            }
+            else
+            {
+                buildString += " -D" + define;
+            }
+        }
+
         // Add source file
         buildString += " " + sourceFile;
 

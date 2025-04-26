@@ -31,6 +31,7 @@ public:
     std::string Archiver;
     std::string ArchiverFlags;
 
+    std::vector<std::string> Defines;
     std::vector<std::string> IncludePaths;
     std::vector<std::string> LibraryPaths;
     std::vector<std::string> Libraries;
@@ -68,6 +69,14 @@ public:
             OutputDir = Name;
         else
             OutputDir = "";
+
+
+        // Extract defines
+        JsonArray defines = doc["defines"].as<JsonArray>();
+        for (JsonVariant define : defines)
+        {
+            Defines.push_back(define.as<std::string>());
+        }
 
         // Extract include paths
         JsonArray includePaths = doc["include_paths"].as<JsonArray>();
