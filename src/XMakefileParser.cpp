@@ -266,7 +266,15 @@ void XMakefileParser::CreateBuildList()
     // Add libraries
     for (const auto &library : currentConfig.Libraries)
     {
-        linkString += " -l" + library;
+        // check if library is absolute or relative
+        if (library[0] != '/' && library[1] != ':')
+        {
+            linkString += " -l" + library;
+        }
+        else
+        {
+            linkString += " " + library;
+        }
     }
 
     // Add include paths
