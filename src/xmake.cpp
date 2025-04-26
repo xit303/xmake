@@ -107,39 +107,39 @@ bool XMake::Build()
             if (buildStruct.empty())
                 continue;
 
+            // get directory of the source file
+            std::string sourceDir = buildStruct.objectFile.substr(0, buildStruct.objectFile.find_last_of("/\\"));
+
+            // create the directory if it does not exist
+            if (!std::filesystem::exists(sourceDir))
+            {
+                std::filesystem::create_directories(sourceDir);
+            }
+
+            if (rebuildScheme == RebuildScheme::Sources)
+            {
+                // Check date of the source file and the object file
+                std::filesystem::path sourcePath(buildStruct.sourceFile);
+                std::filesystem::path objectPath(buildStruct.objectFile);
+
+                if (std::filesystem::exists(objectPath) && std::filesystem::last_write_time(sourcePath) <= std::filesystem::last_write_time(objectPath))
+                {
+                    if (verbose)
+                        std::cout << "Skipping: " << buildStruct.sourceFile << " (up to date)" << std::endl;
+
+                    continue;
+                }
+            }
+
+            if (verbose)
+                std::cout << "Building: " << buildStruct.buildString << std::endl;
+            else
+                std::cout << "Building: " << buildStruct.objectFile << std::endl;
+
             threads.emplace_back([this, buildStruct = buildStruct, &numberOfBuilds, rebuildScheme = rebuildScheme, &interruptBuild]() -> bool
                                  {
                 if (interruptBuild)
                     return false; // Stop building if interrupted
-                    
-                // get directory of the source file
-                std::string sourceDir = buildStruct.objectFile.substr(0, buildStruct.objectFile.find_last_of("/\\"));
-
-                // create the directory if it does not exist
-                if (!std::filesystem::exists(sourceDir))
-                {
-                    std::filesystem::create_directories(sourceDir);
-                }
-
-                if (rebuildScheme == RebuildScheme::Sources)
-                {
-                    // Check date of the source file and the object file
-                    std::filesystem::path sourcePath(buildStruct.sourceFile);
-                    std::filesystem::path objectPath(buildStruct.objectFile);
-
-                    if (std::filesystem::exists(objectPath) && std::filesystem::last_write_time(sourcePath) <= std::filesystem::last_write_time(objectPath))
-                    {
-                        if (verbose)
-                            std::cout << "Skipping: " << buildStruct.sourceFile << " (up to date)" << std::endl;
-
-                        return true;
-                    }
-                }
-
-                if (verbose)
-                    std::cout << "Building: " << buildStruct.buildString << std::endl;
-                else
-                    std::cout << "Building: " << buildStruct.objectFile << std::endl;
 
                 // Execute the build command
                 if (!ExecuteCommand(buildStruct.buildString))
