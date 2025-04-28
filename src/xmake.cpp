@@ -4,6 +4,7 @@
 
 #include "xmake.h"
 #include "SecurityHelper.h"
+#include <Logger.h>
 
 //**************************************************************
 // Public functions
@@ -29,9 +30,14 @@ bool XMake::Init(const std::string &makefileName)
         return false;
     }
 
-    if (!selectedConfig.empty() && !parser.SetConfig(selectedConfig))
+    if (!selectedConfig.empty())
     {
-        return false;
+        if (!parser.SetConfig(selectedConfig))
+            return false;
+    }
+    else
+    {
+        Logger::LogVerbose("No configuration specified, using default.");
     }
 
     parser.LoadBuildTimes();
@@ -46,7 +52,7 @@ bool XMake::Build()
     // check if dependencies are up to date
     if (parser.GetBuildStructures().empty())
     {
-        std::cout << "No build structures found." << std::endl;
+        Logger::LogError("No build structures found.");
         return false;
     }
 
@@ -64,12 +70,11 @@ bool XMake::Build()
     {
         for (const auto &command : config.PreBuildCommands)
         {
-            if (verbose)
-                std::cout << "Pre-build command: " << command << std::endl;
+            Logger::LogVerbose("Pre-build command: " + command);
 
             if (!ExecuteCommand(command))
             {
-                std::cerr << "Error: Pre-build command failed." << std::endl;
+                Logger::LogError("Error: Pre-build command failed.");
                 return false;
             }
         }
@@ -94,7 +99,7 @@ bool XMake::Build()
             }
             catch (const std::invalid_argument &)
             {
-                std::cerr << "Invalid value for -j option. Using hardware concurrency." << std::endl;
+                Logger::LogWarning("Invalid value for -j option. Using hardware concurrency.");
             }
         }
         if (numThreads == 0)
@@ -139,9 +144,7 @@ bool XMake::Build()
 
                 if (std::filesystem::exists(objectPath) && std::filesystem::last_write_time(sourcePath) <= std::filesystem::last_write_time(objectPath))
                 {
-                    if (verbose)
-                        std::cout << "Skipping: " << buildStruct.sourceFile << " (up to date)" << std::endl;
-
+                    Logger::LogVerbose("Skipping: " + buildStruct.sourceFile + " (up to date)");
                     continue;
                 }
             }
@@ -160,7 +163,7 @@ bool XMake::Build()
                 if (!ExecuteCommand(buildStruct.buildString))
                 {
                     interruptBuild = true; // Set interrupt flag
-                    std::cerr << buildStruct.buildString << " failed" << std::endl;
+                    Logger::LogError("Error: " + buildStruct.buildString + " failed.");
                     return false;
                 }
 
@@ -209,7 +212,7 @@ bool XMake::Build()
     // Execute the linker command
     if (!ExecuteCommand(linkString))
     {
-        std::cerr << "Error: Linking failed." << std::endl;
+        Logger::LogError("Error: Linking failed.");
         return false;
     }
 
@@ -218,12 +221,11 @@ bool XMake::Build()
     {
         for (const auto &command : config.PostBuildCommands)
         {
-            if (verbose)
-                std::cout << "Post-build command: " << command << std::endl;
+            Logger::LogVerbose("Post-build command: " + command);
 
             if (!ExecuteCommand(command))
             {
-                std::cerr << "Error: Post-build command failed." << std::endl;
+                Logger::LogError("Error: Post-build command failed.");
                 return false;
             }
         }
@@ -247,12 +249,11 @@ void XMake::Clean()
     {
         for (const auto &command : config.CleanCommands)
         {
-            if (verbose)
-                std::cout << "Clean command: " << command << std::endl;
+            Logger::LogVerbose("Clean command: " + command);
 
             if (!ExecuteCommand(command))
             {
-                std::cerr << "Error: Clean command failed." << std::endl;
+                Logger::LogError("Error: Clean command failed.");
                 return;
             }
         }
@@ -268,12 +269,11 @@ void XMake::Run()
     {
         for (const auto &command : config.PreRunCommands)
         {
-            if (verbose)
-                std::cout << "Pre-run command: " << command << std::endl;
+            Logger::LogVerbose("Pre-run command: " + command);
 
             if (!ExecuteCommand(command))
             {
-                std::cerr << "Error: Pre-run command failed." << std::endl;
+                Logger::LogError("Error: Pre-run command failed.");
                 return;
             }
         }
@@ -283,7 +283,7 @@ void XMake::Run()
     std::string runCommand = "./" + config.OutputDir + "/" + config.OutputFilename;
     if (!ExecuteCommand(runCommand))
     {
-        std::cerr << "Error: Failed to run the output file." << std::endl;
+        Logger::LogError("Error: Failed to run the output file.");
         return;
     }
 
@@ -291,12 +291,11 @@ void XMake::Run()
     {
         for (const auto &command : config.PostRunCommands)
         {
-            if (verbose)
-                std::cout << "Post-run command: " << command << std::endl;
+            Logger::LogVerbose("Post-run command: " + command);
 
             if (!ExecuteCommand(command))
             {
-                std::cerr << "Error: Post-run command failed." << std::endl;
+                Logger::LogError("Error: Post-run command failed.");
                 return;
             }
         }
@@ -313,12 +312,11 @@ void XMake::Install()
     {
         for (const auto &command : config.InstallCommands)
         {
-            if (verbose)
-                std::cout << "Install command: " << command << std::endl;
+            Logger::LogVerbose("Install command: " + command);
 
             if (!ExecuteCommand(command))
             {
-                std::cerr << "Error: Install command failed. Need sudo?" << std::endl;
+                Logger::LogError("Error: Install command failed. Need sudo?");
                 return;
             }
         }
@@ -338,12 +336,11 @@ void XMake::Uninstall()
     {
         for (const auto &command : config.UninstallCommands)
         {
-            if (verbose)
-                std::cout << "Uninstall command: " << command << std::endl;
+            Logger::LogVerbose("Uninstall command: " + command);
 
             if (!ExecuteCommand(command))
             {
-                std::cerr << "Error: Uninstall command failed." << std::endl;
+                Logger::LogError("Error: Uninstall command failed.");
                 return;
             }
         }

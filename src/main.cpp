@@ -7,6 +7,7 @@
 #include "CmdLineParser.h"
 #include "xmake.h"
 #include <filesystem>
+#include <Logger.h>
 
 //**************************************************************
 // Main program
@@ -45,7 +46,8 @@ int main(int argc, char **argv)
     bool verbose = parser.IsOptionSet("-v");
     if (verbose)
     {
-        std::cout << "Verbose output enabled" << std::endl;
+        Logger::SetVerbose(true);
+        Logger::LogInfo("Verbose mode enabled");
     }
 
     std::string xmakefilePath = std::filesystem::current_path().string() + "/xmakefile.json";
@@ -53,19 +55,17 @@ int main(int argc, char **argv)
     if (parser.IsOptionSet("--xmakefile"))
     {
         xmakefilePath = parser.GetOptionValue("--xmakefile", xmakefilePath);
-        if (verbose)
-            std::cout << "Using xmakefile: " << xmakefilePath << std::endl;
+        Logger::LogVerbose("Using xmakefile: " + xmakefilePath);
     }
     else
     {
-        if (verbose)
-            std::cout << "No xmakefile specified, using default." << std::endl;
+        Logger::LogVerbose("No xmakefile specified, using default.");
     }
 
     XMake xmake(parser);
     if (!xmake.Init(xmakefilePath))
     {
-        std::cerr << "Error: Failed to parse xmakefile." << std::endl;
+        Logger::LogError("Failed to initialize xmake.");
         return 1;
     }
 

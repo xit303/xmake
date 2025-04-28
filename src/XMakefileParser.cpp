@@ -61,7 +61,7 @@ bool XMakefileParser::Parse(const std::string &path)
             currentConfig = xmakefile.configs[0];
         }
 
-        Logger::LogInfo("xmakefile parsed successfully.");
+        Logger::LogVerbose("xmakefile parsed successfully.");
 
 #ifdef DEBUG_MORE
         // print the parsed data for debugging
@@ -136,7 +136,7 @@ bool XMakefileParser::SetConfig(const std::string &configName)
     if (it != xmakefile.configs.end())
     {
         currentConfig = *it;
-        Logger::LogInfo("Configuration set to: " + configName);
+        Logger::LogVerbose("Configuration set to: " + configName);
         return true;
     }
     else

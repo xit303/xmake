@@ -11,6 +11,7 @@ private:
 public:
     enum class LogLevel
     {
+        VERBOSE,
         INFO,
         WARNING,
         ERROR
@@ -18,6 +19,7 @@ public:
 
     static void SetVerbose(bool verbose);
     static void Log(LogLevel level, const std::string &message);
+    static void LogVerbose(const std::string &message);
     static void LogInfo(const std::string &message);
     static void LogWarning(const std::string &message);
     static void LogError(const std::string &message);

@@ -11,8 +11,11 @@ void Logger::Log(LogLevel level, const std::string &message)
 {
     switch (level)
     {
+    case LogLevel::VERBOSE:
+        std::cout << message << std::endl;
+        break;
     case LogLevel::INFO:
-        std::cout << "[INFO] " << message << std::endl;
+        std::cout << message << std::endl;
         break;
     case LogLevel::WARNING:
         std::cerr << "[WARNING] " << message << std::endl;
@@ -22,10 +25,16 @@ void Logger::Log(LogLevel level, const std::string &message)
         break;
     }
 }
-void Logger::LogInfo(const std::string &message)
+
+void Logger::LogVerbose(const std::string &message)
 {
     if (verboseMode)
-        Log(LogLevel::INFO, message);
+        Log(LogLevel::VERBOSE, message);
+}
+
+void Logger::LogInfo(const std::string &message)
+{
+    Log(LogLevel::INFO, message);
 }
 void Logger::LogWarning(const std::string &message)
 {

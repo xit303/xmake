@@ -56,7 +56,7 @@ bool CmdLineParser::Parse(int argc, char *argv[])
             }
         }
 
-        Logger::LogInfo("Command-line arguments parsed successfully.");
+        Logger::LogVerbose("Command-line arguments parsed successfully.");
     }
     catch (const std::exception &e)
     {

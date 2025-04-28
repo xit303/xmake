@@ -68,7 +68,7 @@ static bool IsValidCommand(const std::string &input)
         }
         else
         {
-            Logger::LogInfo("Input validation completed successfully.");
+            Logger::LogVerbose("Input validation completed successfully.");
             return true;
         }
     }
