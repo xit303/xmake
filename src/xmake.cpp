@@ -16,12 +16,27 @@ XMake::XMake(const CmdLineParser &cmdLineParser) : cmdLineParser(cmdLineParser)
     {
         verbose = true;
     }
+
+    selectedConfig = cmdLineParser.GetOptionValue("--config", "");
 }
 
 bool XMake::Init(const std::string &makefileName)
 {
     parser.SetVerbose(verbose);
-    return parser.Parse(makefileName);
+
+    if (!parser.Parse(makefileName))
+    {
+        return false;
+    }
+
+    if (!selectedConfig.empty() && !parser.SetConfig(selectedConfig))
+    {
+        return false;
+    }
+
+    parser.LoadBuildTimes();
+
+    return true;
 }
 
 bool XMake::Build()
@@ -242,19 +257,6 @@ void XMake::Clean()
             }
         }
     }
-
-    // parser.CreateBuildList();
-
-    // for (const BuildStruct &buildStruct : parser.GetBuildStructures())
-    // {
-    //     if (!buildStruct.empty())
-    //     {
-    //         if (!std::filesystem::remove(buildStruct.objectFile))
-    //         {
-    //             std::cerr << "Error: Failed to remove " << buildStruct.objectFile << std::endl;
-    //         }
-    //     }
-    // }
 
     std::cout << "Cleaned build files." << std::endl;
 }

@@ -91,6 +91,7 @@ public:
     const std::vector<BuildStruct> &GetBuildStructures() { return buildStructures; }
 
     bool Parse(const std::string &path);
+    bool SetConfig(const std::string &configName);
 
     void CreateBuildList();
     void ResetBuildIndex();

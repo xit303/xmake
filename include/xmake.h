@@ -21,6 +21,7 @@ class XMake
 private:
     XMakefileParser parser;
     const CmdLineParser &cmdLineParser;
+    std::string selectedConfig;
     bool verbose = false;
 
     void SaveBuildTimes();

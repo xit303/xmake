@@ -17,7 +17,7 @@
             "archiver": "ar",
             "archiver_flags": "rcs",
             "c_flags": "-std=c11 -Wall -Wextra -pedantic",
-            "cxx_flags": "-g -std=c++23 -Wall -Wextra -pedantic -ffunction-sections -fdata-sections -MMD -Os",
+            "cxx_flags": "-g -std=c++23 -Wall -Wextra -pedantic -ffunction-sections -fdata-sections -MMD -O0",
             "linker_flags": "-lm -lstdc++",
             "defines": [
                 "DEBUG"
@@ -50,6 +50,56 @@
             "install_commands": [
                 "mkdir -p /usr/local/bin",
                 "cp .bin/Debug/xmake /usr/local/bin/"
+            ],
+            "uninstall_commands": [
+                "rm -f /usr/local/bin/xmake"
+            ],
+            "clean_commands": [
+                "rm -rf .bin"
+            ]
+        },
+        {
+            "name": "Release",
+            "build_types": "Options are: Executable, StaticLibrary, SharedLibrary",
+            "build_type": "Executable",
+            "build_dir": ".bin",
+            "output_filename": "xmake",
+            "compiler_path": "",
+            "compiler": "g++",
+            "linker": "g++",
+            "archiver": "ar",
+            "archiver_flags": "rcs",
+            "c_flags": "-std=c11 -Wall -Wextra -pedantic",
+            "cxx_flags": "-g -std=c++23 -Wall -Wextra -pedantic -ffunction-sections -fdata-sections -MMD -Os",
+            "linker_flags": "-lm -lstdc++",
+            "include_paths": [
+                "include",
+                "lib/ArduinoJson/src"
+            ],
+            "source_paths": [
+                "src/"
+            ],
+            "exclude_paths": [
+            ],
+            "exclude_files": [
+            ],
+            "library_paths": [
+            ],
+            "libraries": [
+            ],
+            "pre_build_commands": [
+            ],
+            "post_build_commands": [
+            ],
+            "pre_run_commands": [
+                "echo 'Running...'"
+            ],
+            "post_run_commands": [
+                "echo 'Run completed!'"
+            ],
+            "install_commands": [
+                "mkdir -p /usr/local/bin",
+                "cp .bin/Release/xmake /usr/local/bin/"
             ],
             "uninstall_commands": [
                 "rm -f /usr/local/bin/xmake"

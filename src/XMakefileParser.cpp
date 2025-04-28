@@ -61,7 +61,6 @@ bool XMakefileParser::Parse(const std::string &path)
             currentConfig = xmakefile.configs[0];
         }
 
-        LoadBuildTimes();
         Logger::LogInfo("xmakefile parsed successfully.");
 
 #ifdef DEBUG_MORE
@@ -124,6 +123,25 @@ bool XMakefileParser::Parse(const std::string &path)
     catch (...)
     {
         Logger::LogError("Unknown error occurred during parsing.");
+        return false;
+    }
+}
+
+bool XMakefileParser::SetConfig(const std::string &configName)
+{
+    // Find the configuration by name
+    auto it = std::find_if(xmakefile.configs.begin(), xmakefile.configs.end(),
+                           [&configName](const XMakefileConfig &config) { return config.Name == configName; });
+
+    if (it != xmakefile.configs.end())
+    {
+        currentConfig = *it;
+        Logger::LogInfo("Configuration set to: " + configName);
+        return true;
+    }
+    else
+    {
+        Logger::LogError("Configuration not found: " + configName);
         return false;
     }
 }

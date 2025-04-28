@@ -18,6 +18,7 @@ int main(int argc, char **argv)
     parser.RegisterOption("--help", "Show help message");
     parser.RegisterOption("--version", "Show version information");
     parser.RegisterOption("--xmakefile", "Path to the xmakefile to use");
+    parser.RegisterOption("--config", "Configuration to use (default: first one in xmakefile)");
     parser.RegisterOption("-v", "Enable verbose output");
     parser.RegisterOption("-j", "Number of jobs to run simultaneously");
     parser.RegisterOption("clean", "Clean all build files (clean_commands needs to be set in xakefile)");
