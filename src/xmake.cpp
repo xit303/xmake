@@ -106,15 +106,14 @@ bool XMake::Build()
         {
             numThreads = std::thread::hardware_concurrency();
         }
+        if (numThreads == 0) // Fallback if hardware_concurrency is not available
+        {
+            numThreads = 2; // Default to 2 threads
+        }
     }
     else
     {
-        numThreads = std::thread::hardware_concurrency();
-    }
-
-    if (numThreads == 0) // Fallback if hardware_concurrency is not available
-    {
-        numThreads = 2; // Default to 2 threads
+        numThreads = 0;
     }
 
     if (rebuildScheme == RebuildScheme::Full || rebuildScheme == RebuildScheme::Sources)
@@ -171,8 +170,10 @@ bool XMake::Build()
 
                 return true; });
 
+            // TODO This is not efficient, as it waits for all threads to finish before starting new ones
+
             // Limit the number of active threads to numThreads
-            if (threads.size() >= numThreads)
+            if ((numThreads != 0) && (threads.size() >= numThreads))
             {
                 for (auto &thread : threads)
                 {
