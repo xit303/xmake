@@ -37,7 +37,8 @@ bool XMake::Init(const std::string &makefileName)
     }
     else
     {
-        Logger::LogVerbose("No configuration specified, using default.");
+        // If no config is specified, use the first one
+        Logger::LogInfo("No configuration specified, using [" + parser.GetCurrentConfig().Name + "]");
     }
 
     parser.LoadBuildTimes();

@@ -30,9 +30,34 @@ bool CmdLineParser::Parse(int argc, char *argv[])
 
             if (arg[0] == '-')
             {
-                if (i + 1 < argc && argv[i + 1][0] != '-')
+                auto it = registeredOptions.find(arg);
+
+                // Check if the argument is a registered option
+                if (it == registeredOptions.end())
                 {
-                    options[arg] = argv[++i];
+                    it = registeredOptions.find(arg + " <arg>");
+                    // Check if the argument is a registered option with an argument
+                    if (it == registeredOptions.end())
+                    {
+                        std::cerr << "Unknown option: " << arg << std::endl;
+                        PrintHelp();
+                        return false;
+                    }
+                }
+
+                // Check if the option requires an argument
+                if (it->first.find("<arg>") != std::string::npos)
+                {
+                    if (i + 1 < argc && argv[i + 1][0] != '-')
+                    {
+                        options[arg] = argv[++i];
+                    }
+                    else
+                    {
+                        std::cerr << "Option " << arg << " requires an argument." << std::endl;
+                        PrintHelp();
+                        return false;
+                    }
                 }
                 else
                 {
@@ -42,17 +67,6 @@ bool CmdLineParser::Parse(int argc, char *argv[])
             else
             {
                 options[arg] = argv[i];
-            }
-        }
-
-        // check if the options are in the registered options
-        for (const auto &option : options)
-        {
-            if (registeredOptions.find(option.first) == registeredOptions.end())
-            {
-                std::cerr << "Unknown option: " << option.first << std::endl;
-                PrintHelp();
-                return false;
             }
         }
 
@@ -105,9 +119,16 @@ std::string CmdLineParser::GetOptionValue(const std::string &option, int default
     return std::to_string(defaultValue);
 }
 
-void CmdLineParser::RegisterOption(const std::string &option, const std::string &description)
+void CmdLineParser::RegisterOption(const std::string &option, const std::string &description, bool hasArgs)
 {
-    registeredOptions[option] = description;
+    if (hasArgs)
+    {
+        registeredOptions[option + " <arg>"] = description;
+    }
+    else
+    {
+        registeredOptions[option] = description;
+    }
 }
 
 void CmdLineParser::PrintHelp() const

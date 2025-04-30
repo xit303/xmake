@@ -18,11 +18,11 @@ int main(int argc, char **argv)
     CmdLineParser parser("xmake", "xit's little make tool", VERSION_STRING);
     parser.RegisterOption("--help", "Show help message");
     parser.RegisterOption("--version", "Show version information");
-    parser.RegisterOption("--xmakefile", "Path to the xmakefile to use");
-    parser.RegisterOption("--config", "Configuration to use (default: first one in xmakefile)");
+    parser.RegisterOption("--xmakefile", "Path to the xmakefile to use", true);
+    parser.RegisterOption("--config", "Configuration to use (default: first one in xmakefile)", true);
     parser.RegisterOption("-v", "Enable verbose output");
     parser.RegisterOption("-j", "Number of jobs to run simultaneously");
-    parser.RegisterOption("clean", "Clean all build files (clean_commands needs to be set in xakefile)");
+    parser.RegisterOption("clean", "Clean all build files (clean_commands needs to be set in xmakefile)");
     parser.RegisterOption("run", "Run the output file after building");
     parser.RegisterOption("install", "Install the output file");
     parser.RegisterOption("uninstall", "Uninstall the output file");

@@ -30,7 +30,7 @@ public:
     std::string GetOptionValue(const std::string &option, const std::string &defaultValue) const;
     std::string GetOptionValue(const std::string &option, int defaultValue) const;
 
-    void RegisterOption(const std::string &option, const std::string &description);
+    void RegisterOption(const std::string &option, const std::string &description, bool hasArgs = false);
     void PrintHelp() const;
     void PrintVersion() const;
 };
