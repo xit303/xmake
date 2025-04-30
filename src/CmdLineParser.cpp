@@ -50,7 +50,39 @@ bool CmdLineParser::Parse(int argc, char *argv[])
                 {
                     if (i + 1 < argc && argv[i + 1][0] != '-')
                     {
-                        options[arg] = argv[++i];
+                        std::string value;
+                        while (i + 1 < argc && argv[i + 1][0] != '-')
+                        {
+                            if (!value.empty())
+                            {
+                                value += " ";
+                            }
+
+                            std::string nextArg = argv[i + 1];
+                            // Check if the next argument is a registered option
+                            if (registeredOptions.find(nextArg) != registeredOptions.end())
+                            {
+                                break;
+                            }
+                            // Check if the next argument is a registered option with an argument
+                            if (registeredOptions.find(nextArg + " <arg>") != registeredOptions.end())
+                            {
+                                break;
+                            }
+
+                            // Otherwise, add it to the value
+                            value += argv[++i];
+                        }
+
+                        // Store the value in the options map and trim whitespace
+                        value.erase(std::remove_if(value.begin(), value.end(), ::isspace), value.end());
+                        if (value.empty())
+                        {
+                            std::cerr << "Option " << arg << " requires a non-empty argument." << std::endl;
+                            PrintHelp();
+                            return false;
+                        }
+                        options[arg] = value;
                     }
                     else
                     {
@@ -82,6 +114,11 @@ bool CmdLineParser::Parse(int argc, char *argv[])
     }
 
     return true;
+}
+
+void CmdLineParser::SetUsage(const std::string &usage)
+{
+    usageString = usage;
 }
 
 bool CmdLineParser::IsOptionSet(const std::string &option) const
@@ -119,6 +156,24 @@ std::string CmdLineParser::GetOptionValue(const std::string &option, int default
     return std::to_string(defaultValue);
 }
 
+std::vector<std::string> CmdLineParser::GetOptionValues(const std::string &option) const
+{
+    std::vector<std::string> values;
+    auto it = options.find(option);
+    if (it != options.end())
+    {
+        std::string value = it->second;
+        size_t pos = 0;
+        while ((pos = value.find(' ')) != std::string::npos)
+        {
+            values.push_back(value.substr(0, pos));
+            value.erase(0, pos + 1);
+        }
+        values.push_back(value);
+    }
+    return values;
+}
+
 void CmdLineParser::RegisterOption(const std::string &option, const std::string &description, bool hasArgs)
 {
     if (hasArgs)
@@ -135,8 +190,15 @@ void CmdLineParser::PrintHelp() const
 {
     PrintVersion();
 
-    std::cout << "Usage: xmake [options]" << std::endl
-              << std::endl;
+    if (!usageString.empty())
+    {
+        std::cout << usageString << std::endl;
+    }
+    else
+    {
+        std::cout << "Usage: " << programName << " [options]" << std::endl;
+    }
+
     std::cout << "Options:" << std::endl;
 
     for (const auto &option : registeredOptions)
