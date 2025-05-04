@@ -94,6 +94,11 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    if (parser.IsOptionSet("--print_env"))
+    {
+        xmake.PrintEnvironmentVariables();
+    }
+
     // measure build time
     auto start = std::chrono::high_resolution_clock::now();
 

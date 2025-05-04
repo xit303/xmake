@@ -31,6 +31,11 @@ public:
 
     bool Init(const std::string &makefileName);
 
+    void PrintEnvironmentVariables()
+    {
+        parser.GetCurrentConfig().PrintEnvironmentVariables();
+    }
+
     bool Build();
     void Clean();
     void Run();
