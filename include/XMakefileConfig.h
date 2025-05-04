@@ -18,6 +18,10 @@ class XMakefileConfig
 private:
     std::map<std::string, std::string> envVars;
 
+    static std::string ResolveEnvironmentVariables(const std::string &path, const std::map<std::string, std::string> &envVars);
+    static std::string ResolveCommand(const std::string &command, const std::string &basePath);
+    static std::string Resolve(const std::string &command, const std::string &basePath, const std::map<std::string, std::string> &envVars);
+
 public:
     std::string Name;
     std::string BuildType;
@@ -54,7 +58,6 @@ public:
     static bool IsRelativePath(const std::string &path);
     static std::string ResolvePath(const std::string &path, const std::string &basePath);
 
-    std::string ResolveEnvironmentVariables(const std::string &path, std::map<std::string, std::string> &envVars);
     void PrintEnvironmentVariables();
 
     void FromJSON(const JsonVariant &doc, const std::string &basePath);

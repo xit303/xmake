@@ -32,54 +32,11 @@ std::string XMakefileConfig::ResolvePath(const std::string &path, const std::str
         resolvedPath = std::filesystem::weakly_canonical(resolvedPath);
         return resolvedPath.string();
     }
-    else if (IsRelativePath(path))
+    else if (IsRelativePath(path) && !path.starts_with(basePath))
     {
         return (std::filesystem::path(basePath) / path).lexically_normal().string();
     }
     return path;
-}
-
-std::string XMakefileConfig::ResolveEnvironmentVariables(const std::string &path, std::map<std::string, std::string> &envVars)
-{
-    // Replace environment variables in the path
-    std::string resolvedPath = path;
-    size_t pos = 0;
-    while ((pos = resolvedPath.find("${", pos)) != std::string::npos)
-    {
-        size_t endPos = resolvedPath.find("}", pos);
-        if (endPos == std::string::npos)
-            break;
-
-        std::string varName = resolvedPath.substr(pos + 2, endPos - pos - 2);
-
-        // Check if the variable is in the envVars list
-        auto it = envVars.find(varName);
-        if (it == envVars.end())
-        {
-            // Check if the variable is in the environment variables
-            const char *envValue = getenv(varName.c_str());
-            if (envValue)
-            {
-                // Replace the variable with its value
-                resolvedPath.replace(pos, endPos - pos + 1, envValue);
-                pos += strlen(envValue);
-            }
-            else
-            {
-                // If not found, just remove the variable
-                resolvedPath.erase(pos, endPos - pos + 1);
-                pos = endPos;
-            }
-        }
-        else
-        {
-            // Replace the variable with its value
-            std::string envValue = it->second;
-            resolvedPath.replace(pos, endPos - pos + 1, envValue);
-            pos += envValue.length();
-        }
-    }
-    return resolvedPath;
 }
 
 void XMakefileConfig::FromJSON(const JsonVariant &doc, const std::string &basePath)
@@ -148,33 +105,25 @@ void XMakefileConfig::FromJSON(const JsonVariant &doc, const std::string &basePa
     JsonArray preBuildCommands = doc["pre_build_commands"].as<JsonArray>();
     for (JsonVariant command : preBuildCommands)
     {
-        std::string cmd = command.as<std::string>();
-        std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
-        PreBuildCommands.push_back(resolved);
+        PreBuildCommands.push_back(Resolve(command.as<std::string>(), tmpPath, envVars));
     }
     // Extract post_build_commands
     JsonArray postBuildCommands = doc["post_build_commands"].as<JsonArray>();
     for (JsonVariant command : postBuildCommands)
     {
-        std::string cmd = command.as<std::string>();
-        std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
-        PostBuildCommands.push_back(resolved);
+        PostBuildCommands.push_back(Resolve(command.as<std::string>(), tmpPath, envVars));
     }
     // Extract pre_run_commands
     JsonArray preRunCommands = doc["pre_run_commands"].as<JsonArray>();
     for (JsonVariant command : preRunCommands)
     {
-        std::string cmd = command.as<std::string>();
-        std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
-        PreRunCommands.push_back(resolved);
+        PreRunCommands.push_back(Resolve(command.as<std::string>(), tmpPath, envVars));
     }
     // Extract post_run_commands
     JsonArray postRunCommands = doc["post_run_commands"].as<JsonArray>();
     for (JsonVariant command : postRunCommands)
     {
-        std::string cmd = command.as<std::string>();
-        std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
-        PostRunCommands.push_back(resolved);
+        PostRunCommands.push_back(Resolve(command.as<std::string>(), tmpPath, envVars));
     }
 
     // Extract source paths
@@ -201,25 +150,19 @@ void XMakefileConfig::FromJSON(const JsonVariant &doc, const std::string &basePa
     JsonArray installCommands = doc["install_commands"].as<JsonArray>();
     for (JsonVariant command : installCommands)
     {
-        std::string cmd = command.as<std::string>();
-        std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
-        InstallCommands.push_back(resolved);
+        InstallCommands.push_back(Resolve(command.as<std::string>(), tmpPath, envVars));
     }
     // Extract uninstall commands
     JsonArray uninstallCommands = doc["uninstall_commands"].as<JsonArray>();
     for (JsonVariant command : uninstallCommands)
     {
-        std::string cmd = command.as<std::string>();
-        std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
-        UninstallCommands.push_back(resolved);
+        UninstallCommands.push_back(Resolve(command.as<std::string>(), tmpPath, envVars));
     }
     // Extract clean commands
     JsonArray cleanCommands = doc["clean_commands"].as<JsonArray>();
     for (JsonVariant command : cleanCommands)
     {
-        std::string cmd = command.as<std::string>();
-        std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
-        CleanCommands.push_back(resolved);
+        CleanCommands.push_back(Resolve(command.as<std::string>(), tmpPath, envVars));
     }
 }
 
@@ -229,4 +172,86 @@ void XMakefileConfig::PrintEnvironmentVariables()
     {
         std::cout << pair.first.c_str() << "=" << pair.second.c_str() << std::endl;
     }
+}
+
+std::string XMakefileConfig::ResolveEnvironmentVariables(const std::string &path, const std::map<std::string, std::string> &envVars)
+{
+    // Replace environment variables in the path
+    std::string resolvedPath = path;
+    size_t pos = 0;
+    while ((pos = resolvedPath.find("${", pos)) != std::string::npos)
+    {
+        size_t endPos = resolvedPath.find("}", pos);
+        if (endPos == std::string::npos)
+            break;
+
+        std::string varName = resolvedPath.substr(pos + 2, endPos - pos - 2);
+
+        // Check if the variable is in the envVars list
+        auto it = envVars.find(varName);
+        if (it == envVars.end())
+        {
+            // Check if the variable is in the environment variables
+            const char *envValue = getenv(varName.c_str());
+            if (envValue)
+            {
+                // Replace the variable with its value
+                resolvedPath.replace(pos, endPos - pos + 1, envValue);
+                pos += strlen(envValue);
+            }
+            else
+            {
+                // If not found, just remove the variable
+                resolvedPath.erase(pos, endPos - pos + 1);
+                pos = endPos;
+            }
+        }
+        else
+        {
+            // Replace the variable with its value
+            std::string envValue = it->second;
+            resolvedPath.replace(pos, endPos - pos + 1, envValue);
+            pos += envValue.length();
+        }
+    }
+    return resolvedPath;
+}
+
+static std::vector<std::string> Split(std::string str, const std::string &delimiter)
+{
+    std::vector<std::string> tokens;
+    size_t pos = 0;
+    while ((pos = str.find(delimiter)) != std::string::npos)
+    {
+        tokens.push_back(str.substr(0, pos));
+        str.erase(0, pos + delimiter.length());
+    }
+    tokens.push_back(str);
+    return tokens;
+}
+
+std::string XMakefileConfig::ResolveCommand(const std::string &command, const std::string &basePath)
+{
+    std::string resolvedCommand;
+    std::vector<std::string> parts = Split(command, " ");
+    for (const auto &part : parts)
+    {
+        // check if the command contains a path
+        if (part.find("/") != std::string::npos || part.find("\\") != std::string::npos)
+        {
+            resolvedCommand += ResolvePath(part, basePath) + " ";
+        }
+        else
+        {
+            resolvedCommand += part + " ";
+        }
+    }
+
+    return resolvedCommand;
+}
+
+std::string XMakefileConfig::Resolve(const std::string &command, const std::string &basePath, const std::map<std::string, std::string> &envVars)
+{
+    std::string resolved = ResolveCommand(command, basePath);
+    return ResolveEnvironmentVariables(resolved, envVars);
 }
