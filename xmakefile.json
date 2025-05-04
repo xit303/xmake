@@ -49,13 +49,13 @@
             ],
             "install_commands": [
                 "mkdir -p /usr/local/bin",
-                "cp .bin/Debug/xmake /usr/local/bin/"
+                "cp ${output_file} /usr/local/bin/"
             ],
             "uninstall_commands": [
                 "rm -f /usr/local/bin/xmake"
             ],
             "clean_commands": [
-                "rm -rf .bin"
+                "rm -rf ${build_dir}"
             ]
         },
         {
