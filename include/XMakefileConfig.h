@@ -7,6 +7,7 @@
 #include <ArduinoJson.h>
 #include <string>
 #include <vector>
+#include <map>
 #include <filesystem>
 
 //**************************************************************
@@ -76,8 +77,53 @@ public:
         return path;
     }
 
+    std::string ResolveEnvironmentVariables(const std::string &path, std::map<std::string, std::string> &envVars)
+    {
+        // Replace environment variables in the path
+        std::string resolvedPath = path;
+        size_t pos = 0;
+        while ((pos = resolvedPath.find("${", pos)) != std::string::npos)
+        {
+            size_t endPos = resolvedPath.find("}", pos);
+            if (endPos == std::string::npos)
+                break;
+
+            std::string varName = resolvedPath.substr(pos + 2, endPos - pos - 2);
+
+            // Check if the variable is in the envVars list
+            auto it = envVars.find(varName);
+            if (it == envVars.end())
+            {
+                // Check if the variable is in the environment variables
+                const char *envValue = getenv(varName.c_str());
+                if (envValue)
+                {
+                    // Replace the variable with its value
+                    resolvedPath.replace(pos, endPos - pos + 1, envValue);
+                    pos += strlen(envValue);
+                }
+                else
+                {
+                    // If not found, just remove the variable
+                    resolvedPath.erase(pos, endPos - pos + 1);
+                    pos = endPos;
+                }
+            }
+            else
+            {
+                // Replace the variable with its value
+                std::string envValue = it->second;
+                resolvedPath.replace(pos, endPos - pos + 1, envValue);
+                pos += envValue.length();
+            }
+        }
+        return resolvedPath;
+    }
+
     void FromJSON(const JsonVariant &doc, const std::string &basePath)
     {
+        std::map<std::string, std::string> envVars;
+
         Name = doc["name"].as<std::string>();
         BuildType = doc["build_type"].as<std::string>();
         BuildDir = doc["build_dir"].as<std::string>();
@@ -103,6 +149,8 @@ public:
             OutputDir += Name;
         else
             OutputDir += "";
+
+        envVars["build_dir"] = ResolvePath(BuildDir, tmpPath);
 
         // Extract defines
         JsonArray defines = doc["defines"].as<JsonArray>();
@@ -136,25 +184,33 @@ public:
         JsonArray preBuildCommands = doc["pre_build_commands"].as<JsonArray>();
         for (JsonVariant command : preBuildCommands)
         {
-            PreBuildCommands.push_back(command.as<std::string>());
+            std::string cmd = command.as<std::string>();
+            std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
+            PreBuildCommands.push_back(resolved);
         }
         // Extract post_build_commands
         JsonArray postBuildCommands = doc["post_build_commands"].as<JsonArray>();
         for (JsonVariant command : postBuildCommands)
         {
-            PostBuildCommands.push_back(command.as<std::string>());
+            std::string cmd = command.as<std::string>();
+            std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
+            PostBuildCommands.push_back(resolved);
         }
         // Extract pre_run_commands
         JsonArray preRunCommands = doc["pre_run_commands"].as<JsonArray>();
         for (JsonVariant command : preRunCommands)
         {
-            PreRunCommands.push_back(command.as<std::string>());
+            std::string cmd = command.as<std::string>();
+            std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
+            PreRunCommands.push_back(resolved);
         }
         // Extract post_run_commands
         JsonArray postRunCommands = doc["post_run_commands"].as<JsonArray>();
         for (JsonVariant command : postRunCommands)
         {
-            PostRunCommands.push_back(command.as<std::string>());
+            std::string cmd = command.as<std::string>();
+            std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
+            PostRunCommands.push_back(resolved);
         }
 
         // Extract source paths
@@ -181,19 +237,25 @@ public:
         JsonArray installCommands = doc["install_commands"].as<JsonArray>();
         for (JsonVariant command : installCommands)
         {
-            InstallCommands.push_back(command.as<std::string>());
+            std::string cmd = command.as<std::string>();
+            std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
+            InstallCommands.push_back(resolved);
         }
         // Extract uninstall commands
         JsonArray uninstallCommands = doc["uninstall_commands"].as<JsonArray>();
         for (JsonVariant command : uninstallCommands)
         {
-            UninstallCommands.push_back(command.as<std::string>());
+            std::string cmd = command.as<std::string>();
+            std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
+            UninstallCommands.push_back(resolved);
         }
         // Extract clean commands
         JsonArray cleanCommands = doc["clean_commands"].as<JsonArray>();
         for (JsonVariant command : cleanCommands)
         {
-            CleanCommands.push_back(command.as<std::string>());
+            std::string cmd = command.as<std::string>();
+            std::string resolved = ResolveEnvironmentVariables(cmd, envVars);
+            CleanCommands.push_back(resolved);
         }
     }
 };
