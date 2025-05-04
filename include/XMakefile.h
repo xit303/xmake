@@ -21,7 +21,7 @@ public:
 
     std::vector<XMakefileConfig> configs; // List of configurations
 
-    void FromJSON(const JsonVariant &doc)
+    void FromJSON(const JsonVariant &doc, const std::string &basePath)
     {
         xmakeFileName = doc["name"].as<std::string>();
         xmakeFileVersion = doc["version"].as<std::string>();
@@ -34,7 +34,7 @@ public:
         for (JsonVariant config : configsArray)
         {
             XMakefileConfig cfg;
-            cfg.FromJSON(config);
+            cfg.FromJSON(config, basePath);
             configs.push_back(cfg);
         }
     }

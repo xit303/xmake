@@ -7,6 +7,7 @@
 #include <ArduinoJson.h>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 //**************************************************************
 // Classes
@@ -46,7 +47,67 @@ public:
     std::vector<std::string> UninstallCommands;
     std::vector<std::string> CleanCommands;
 
-    void FromJSON(const JsonVariant &doc)
+    static bool IsParentDirectoryTraversalPath(const std::string &path)
+    {
+        return path[0] == '.' && path[1] == '.' && path[2] == '/';
+    }
+
+    static bool IsRelativePath(const std::string &path)
+    {
+        return path[0] != '/' && path[1] != ':';
+    }
+
+    static std::string GetRealPath(const std::string &path, const std::string &basePath)
+    {
+        if (IsParentDirectoryTraversalPath(path))
+        {
+            // get current working directory
+            std::string currentPath = std::filesystem::current_path().string();
+
+            // check how many directories we need to go up
+            std::string relativePath = path;
+            size_t pos = 0;
+            size_t searchPos = 0;
+            int count = 0;
+            while ((searchPos = relativePath.find("../", searchPos)) != std::string::npos)
+            {
+                count++;
+                searchPos += 3; // Move past "../"
+                pos += 3; // Move past "../"
+            }
+
+            // check how many directories we have in the base path
+            size_t basePathPos = 0;
+            while ((basePathPos = basePath.find("/", basePathPos)) != std::string::npos)
+            {
+                // subtract from count
+                count--;
+                basePathPos++;
+            }
+
+            if (count < 0)
+            {
+                count = 0;
+            }
+
+            // Remove the "../" from the relative path
+            relativePath = relativePath.substr(pos);
+
+            // remove the number of directories from the current path depending on the count
+            for (int i = 0; i < count; i++)
+            {
+                currentPath = currentPath.substr(0, currentPath.find_last_of('/'));
+            }
+            return currentPath + "/" + relativePath;
+        }
+        else if (IsRelativePath(path))
+        {
+            return basePath + path;
+        }
+        return path;
+    }
+
+    void FromJSON(const JsonVariant &doc, const std::string &basePath)
     {
         Name = doc["name"].as<std::string>();
         BuildType = doc["build_type"].as<std::string>();
@@ -61,15 +122,18 @@ public:
         Archiver = doc["archiver"].as<std::string>();
         ArchiverFlags = doc["archiver_flags"].as<std::string>();
 
-        if (!BuildDir.empty() && !Name.empty())
-            OutputDir = BuildDir + "/" + Name;
-        else if (!BuildDir.empty())
-            OutputDir = BuildDir;
-        else if (!Name.empty())
-            OutputDir = Name;
-        else
-            OutputDir = "";
+        std::string tmpPath = basePath.empty() ? "" : basePath + "/";
 
+        OutputDir = tmpPath;
+
+        if (!BuildDir.empty() && !Name.empty())
+            OutputDir += BuildDir + "/" + Name;
+        else if (!BuildDir.empty())
+            OutputDir += BuildDir;
+        else if (!Name.empty())
+            OutputDir += Name;
+        else
+            OutputDir += "";
 
         // Extract defines
         JsonArray defines = doc["defines"].as<JsonArray>();
@@ -82,21 +146,21 @@ public:
         JsonArray includePaths = doc["include_paths"].as<JsonArray>();
         for (JsonVariant path : includePaths)
         {
-            IncludePaths.push_back(path.as<std::string>());
+            IncludePaths.push_back(GetRealPath(path.as<std::string>(), tmpPath));
         }
 
         // Extract library paths
         JsonArray libraryPaths = doc["library_paths"].as<JsonArray>();
         for (JsonVariant path : libraryPaths)
         {
-            LibraryPaths.push_back(path.as<std::string>());
+            LibraryPaths.push_back(GetRealPath(path.as<std::string>(), tmpPath));
         }
 
         // Extract libraries
         JsonArray libraries = doc["libraries"].as<JsonArray>();
         for (JsonVariant lib : libraries)
         {
-            Libraries.push_back(lib.as<std::string>());
+            Libraries.push_back(GetRealPath(lib.as<std::string>(), tmpPath));
         }
 
         // Extract pre_build_commands
@@ -111,7 +175,7 @@ public:
         {
             PostBuildCommands.push_back(command.as<std::string>());
         }
-        //Extract pre_run_commands
+        // Extract pre_run_commands
         JsonArray preRunCommands = doc["pre_run_commands"].as<JsonArray>();
         for (JsonVariant command : preRunCommands)
         {
@@ -128,20 +192,20 @@ public:
         JsonArray sourcePaths = doc["source_paths"].as<JsonArray>();
         for (JsonVariant path : sourcePaths)
         {
-            SourcePaths.push_back(path.as<std::string>());
+            SourcePaths.push_back(GetRealPath(path.as<std::string>(), tmpPath));
         }
 
         // Extract excluded source paths
         JsonArray excludePaths = doc["exclude_paths"].as<JsonArray>();
         for (JsonVariant path : excludePaths)
         {
-            ExcludePaths.push_back(path.as<std::string>());
+            ExcludePaths.push_back(GetRealPath(path.as<std::string>(), tmpPath));
         }
         // Extract excluded source files
         JsonArray excludeFiles = doc["exclude_files"].as<JsonArray>();
         for (JsonVariant file : excludeFiles)
         {
-            ExcludeFiles.push_back(file.as<std::string>());
+            ExcludeFiles.push_back(GetRealPath(file.as<std::string>(), tmpPath));
         }
 
         // Extract install commands

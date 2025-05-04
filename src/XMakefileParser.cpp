@@ -48,7 +48,7 @@ bool XMakefileParser::Parse(const std::string &path)
             return false;
         }
 
-        xmakefile.FromJSON(jsonDoc);
+        xmakefile.FromJSON(jsonDoc, xmakefileDir);
         file.close();
 
         if (xmakefile.configs.empty())
