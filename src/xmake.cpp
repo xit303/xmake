@@ -62,7 +62,7 @@ bool XMake::Build()
     if (rebuildScheme == RebuildScheme::None)
     {
         std::cout << "No changes in files." << std::endl;
-        return false;
+        return true;
     }
 
     // execute pre-build commands
@@ -197,13 +197,16 @@ bool XMake::Build()
         }
     }
 
+    if (interruptBuild)
+        return false;
+
     // After building all source files, link them
     std::string linkString = parser.GetLinkerString();
 
     if (numberOfBuilds == 0)
     {
         std::cout << "All files are up to date" << std::endl;
-        return false;
+        return true;
     }
 
     if (verbose)

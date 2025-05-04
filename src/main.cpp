@@ -102,7 +102,10 @@ int main(int argc, char **argv)
     // measure build time
     auto start = std::chrono::high_resolution_clock::now();
 
-    xmake.Build();
+    if (!xmake.Build())
+    {
+        return 1;
+    }
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
