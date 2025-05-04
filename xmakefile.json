@@ -1,9 +1,4 @@
 {
-    "name" : "xmakefile",
-    "version" : "1.0.0",
-    "description" : "A simple xmakefile for building a C++ project",
-    "author" : "xit",
-    "license" : "MIT",
     "configurations": [
         {
             "name": "Debug",
@@ -29,18 +24,12 @@
             "source_paths": [
                 "src/"
             ],
-            "exclude_paths": [
-            ],
-            "exclude_files": [
-            ],
-            "library_paths": [
-            ],
-            "libraries": [
-            ],
-            "pre_build_commands": [
-            ],
-            "post_build_commands": [
-            ],
+            "exclude_paths": [],
+            "exclude_files": [],
+            "library_paths": [],
+            "libraries": [],
+            "pre_build_commands": [],
+            "post_build_commands": [],
             "pre_run_commands": [
                 "echo 'Running...'"
             ],
@@ -49,10 +38,12 @@
             ],
             "install_commands": [
                 "mkdir -p /usr/local/bin",
-                "cp ${output_file} /usr/local/bin/"
+                "cp ${output_file} /usr/local/bin/",
+                "mkdir -p /usr/include/xit",
+                "cp -r include/ /usr/include/xit/"
             ],
             "uninstall_commands": [
-                "rm -f /usr/local/bin/xmake"
+                "rm -f /usr/local/bin/${output_filename}"
             ],
             "clean_commands": [
                 "rm -rf ${build_dir}"
@@ -79,18 +70,12 @@
             "source_paths": [
                 "src/"
             ],
-            "exclude_paths": [
-            ],
-            "exclude_files": [
-            ],
-            "library_paths": [
-            ],
-            "libraries": [
-            ],
-            "pre_build_commands": [
-            ],
-            "post_build_commands": [
-            ],
+            "exclude_paths": [],
+            "exclude_files": [],
+            "library_paths": [],
+            "libraries": [],
+            "pre_build_commands": [],
+            "post_build_commands": [],
             "pre_run_commands": [
                 "echo 'Running...'"
             ],
@@ -99,10 +84,12 @@
             ],
             "install_commands": [
                 "mkdir -p /usr/local/bin",
-                "cp .bin/Release/xmake /usr/local/bin/"
+                "cp ${output_file} /usr/local/bin/",
+                "mkdir -p /usr/include/xit",
+                "cp -r include/ /usr/include/xit/"
             ],
             "uninstall_commands": [
-                "rm -f /usr/local/bin/xmake"
+                "rm -f /usr/local/bin/${output_filename}"
             ],
             "clean_commands": [
                 "rm -rf .bin"
