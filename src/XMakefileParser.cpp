@@ -217,7 +217,39 @@ void XMakefileParser::CreateBuildList()
             else
             {
                 // absolute path
-                objectFilePath = currentConfig.OutputDir / sourceFilePath.filename();
+
+                // check both paths for same start path and replace source path up to this index
+                std::string sourcePath = sourceFile.substr(0, sourceFile.find_last_of("/\\"));
+                std::string buildPath = currentConfig.OutputDir.substr(0, currentConfig.OutputDir.find_last_of("/\\"));
+
+                std::string upperPathString;
+
+                for (size_t i = 0; i < sourcePath.length() && i < buildPath.length(); i++)
+                {
+                    if (sourcePath[i] != buildPath[i])
+                    {
+                        upperPathString = sourcePath.substr(i) + "/" + sourceFilePath.filename().string();
+                        break;
+                    }
+                }
+
+                if (!upperPathString.empty())
+                {
+                    // get path from
+                    objectFilePath = currentConfig.OutputDir / std::filesystem::path(upperPathString);
+
+
+                    // replace source path with build path
+                    //objectFilePath = currentConfig.OutputDir / std::filesystem::path(sourceFile.substr(index + buildPath.length()));
+                }
+                else
+                {
+                    // use the same directory as the source file
+                    objectFilePath = currentConfig.OutputDir / sourceFilePath.filename();
+                }
+
+
+                //objectFilePath = currentConfig.OutputDir / sourceFilePath.filename();
             }
 
             std::string substring = objectFilePath.string().substr(0, objectFilePath.string().find_last_of('.'));
