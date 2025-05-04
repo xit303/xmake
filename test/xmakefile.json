@@ -1,0 +1,62 @@
+{
+    "name" : "xmakefile",
+    "version" : "1.0.0",
+    "description" : "A simple xmakefile for building a C++ project",
+    "author" : "xit",
+    "license" : "MIT",
+    "configurations": [
+        {
+            "name": "Debug",
+            "build_types": "Options are: Executable, StaticLibrary, SharedLibrary",
+            "build_type": "Executable",
+            "build_dir": ".bin",
+            "output_filename": "test",
+            "compiler_path": "",
+            "compiler": "g++",
+            "linker": "g++",
+            "archiver": "ar",
+            "archiver_flags": "rcs",
+            "c_flags": "-std=c11 -Wall -Wextra -pedantic",
+            "cxx_flags": "-g -std=c++23 -Wall -Wextra -pedantic -ffunction-sections -fdata-sections -MMD -O0",
+            "linker_flags": "-lm -lstdc++",
+            "defines": [
+                "DEBUG"
+            ],
+            "include_paths": [
+                "../include",
+                "../lib/ArduinoJson/src"
+            ],
+            "source_paths": [
+                "src/"
+            ],
+            "exclude_paths": [
+            ],
+            "exclude_files": [
+            ],
+            "library_paths": [
+            ],
+            "libraries": [
+            ],
+            "pre_build_commands": [
+            ],
+            "post_build_commands": [
+            ],
+            "pre_run_commands": [
+                "echo 'Running...'"
+            ],
+            "post_run_commands": [
+                "echo 'Run completed!'"
+            ],
+            "install_commands": [
+                "mkdir -p /usr/local/bin",
+                "cp .bin/Debug/xmake /usr/local/bin/"
+            ],
+            "uninstall_commands": [
+                "rm -f /usr/local/bin/xmake"
+            ],
+            "clean_commands": [
+                "rm -rf .bin"
+            ]
+        }
+    ]
+}
