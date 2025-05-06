@@ -31,7 +31,7 @@ bool XMakefileParser::Parse(const std::string &path)
         std::ifstream file(xmakefilePath);
         if (!file.is_open())
         {
-            Logger::LogError("Could not open xmakefile: " + xmakefilePath);
+            Logger::LogError("Could not open xmakefile: " + xmakefilePath + ". Place an xmakefile into this directory or use --xmakefile /path/to/file");
             return false;
         }
 
@@ -131,7 +131,8 @@ bool XMakefileParser::SetConfig(const std::string &configName)
 {
     // Find the configuration by name
     auto it = std::find_if(xmakefile.configs.begin(), xmakefile.configs.end(),
-                           [&configName](const XMakefileConfig &config) { return config.Name == configName; });
+                           [&configName](const XMakefileConfig &config)
+                           { return config.Name == configName; });
 
     if (it != xmakefile.configs.end())
     {
@@ -220,13 +221,12 @@ void XMakefileParser::CreateBuildList()
 
                 // check both paths for same start path and replace source path up to this index
                 std::string sourcePath = sourceFile.substr(0, sourceFile.find_last_of("/\\"));
-                std::string buildPath = currentConfig.OutputDir.substr(0, currentConfig.OutputDir.find_last_of("/\\"));
-
+                std::filesystem::path buildPath = std::filesystem::weakly_canonical(currentConfig.OutputDir);
+                std::string buildPathString = buildPath.string();
                 std::string upperPathString;
-
-                for (size_t i = 0; i < sourcePath.length() && i < buildPath.length(); i++)
+                for (size_t i = 0; i < sourcePath.length() && i < buildPathString.length(); i++)
                 {
-                    if (sourcePath[i] != buildPath[i])
+                    if (sourcePath[i] != buildPathString[i])
                     {
                         upperPathString = sourcePath.substr(i) + "/" + sourceFilePath.filename().string();
                         break;
@@ -236,20 +236,13 @@ void XMakefileParser::CreateBuildList()
                 if (!upperPathString.empty())
                 {
                     // get path from
-                    objectFilePath = currentConfig.OutputDir / std::filesystem::path(upperPathString);
-
-
-                    // replace source path with build path
-                    //objectFilePath = currentConfig.OutputDir / std::filesystem::path(sourceFile.substr(index + buildPath.length()));
+                    objectFilePath = buildPathString / std::filesystem::path(upperPathString);
                 }
                 else
                 {
                     // use the same directory as the source file
                     objectFilePath = currentConfig.OutputDir / sourceFilePath.filename();
                 }
-
-
-                //objectFilePath = currentConfig.OutputDir / sourceFilePath.filename();
             }
 
             std::string substring = objectFilePath.string().substr(0, objectFilePath.string().find_last_of('.'));
