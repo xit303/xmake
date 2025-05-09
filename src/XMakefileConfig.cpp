@@ -98,7 +98,7 @@ void XMakefileConfig::FromJSON(const JsonVariant &doc, const std::string &basePa
     JsonArray libraries = doc["libraries"].as<JsonArray>();
     for (JsonVariant lib : libraries)
     {
-        Libraries.push_back(ResolvePath(lib.as<std::string>(), tmpPath));
+        Libraries.push_back(lib.as<std::string>());
     }
 
     // Extract pre_build_commands
