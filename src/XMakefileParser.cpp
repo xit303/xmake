@@ -437,7 +437,7 @@ void XMakefileParser::SaveBuildTimes()
     std::ofstream file(buildTimeFile);
     if (!file.is_open())
     {
-        std::cerr << "Error: Could not open build time file for writing: " << buildTimeFile << std::endl;
+        Logger::LogError("Could not open build time file for writing: " + buildTimeFile);
         return;
     }
     for (const auto &entry : lastModifiedTimes)
@@ -446,8 +446,7 @@ void XMakefileParser::SaveBuildTimes()
     }
     file.close();
 
-    if (verbose)
-        std::cout << "Build times saved to: " << buildTimeFile << std::endl;
+    Logger::LogVerbose("Build times saved to: " + buildTimeFile);
 }
 
 //**************************************************************
@@ -489,7 +488,7 @@ void XMakefileParser::FindFiles(const std::string &path, const std::vector<std::
 {
     if (!std::filesystem::exists(path) || !std::filesystem::is_directory(path))
     {
-        std::cerr << "Error: Path does not exist or is not a directory: " << path << std::endl;
+        Logger::LogError("Path does not exist or is not a directory: " + path);
         return;
     }
 

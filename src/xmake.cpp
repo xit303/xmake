@@ -75,7 +75,7 @@ bool XMake::Build()
 
             if (!ExecuteCommand(command))
             {
-                Logger::LogError("Error: Pre-build command failed.");
+                Logger::LogError("Pre-build command failed.");
                 return false;
             }
         }
@@ -163,7 +163,7 @@ bool XMake::Build()
                 if (!ExecuteCommand(buildStruct.buildString))
                 {
                     interruptBuild = true; // Set interrupt flag
-                    Logger::LogError("Error: " + buildStruct.buildString + " failed.");
+                    Logger::LogError(buildStruct.buildString + " failed.");
                     return false;
                 }
 
@@ -217,7 +217,7 @@ bool XMake::Build()
     // Execute the linker command
     if (!ExecuteCommand(linkString))
     {
-        Logger::LogError("Error: Linking failed.");
+        Logger::LogError("Linking failed.");
         return false;
     }
 
@@ -230,7 +230,7 @@ bool XMake::Build()
 
             if (!ExecuteCommand(command))
             {
-                Logger::LogError("Error: Post-build command failed.");
+                Logger::LogError("Post-build command failed.");
                 return false;
             }
         }
@@ -258,7 +258,7 @@ void XMake::Clean()
 
             if (!ExecuteCommand(command))
             {
-                Logger::LogError("Error: Clean command failed.");
+                Logger::LogError("Clean command failed.");
                 return;
             }
         }
@@ -278,7 +278,7 @@ void XMake::Run()
 
             if (!ExecuteCommand(command))
             {
-                Logger::LogError("Error: Pre-run command failed.");
+                Logger::LogError("Pre-run command failed.");
                 return;
             }
         }
@@ -288,7 +288,7 @@ void XMake::Run()
     std::string runCommand = "./" + config.OutputDir + "/" + config.OutputFilename;
     if (!ExecuteCommand(runCommand))
     {
-        Logger::LogError("Error: Failed to run the output file.");
+        Logger::LogError("Failed to run the output file.");
         return;
     }
 
@@ -300,7 +300,7 @@ void XMake::Run()
 
             if (!ExecuteCommand(command))
             {
-                Logger::LogError("Error: Post-run command failed.");
+                Logger::LogError("Post-run command failed.");
                 return;
             }
         }
@@ -321,7 +321,7 @@ void XMake::Install()
 
             if (!ExecuteCommand(command))
             {
-                Logger::LogError("Error: Install command failed. Need sudo?");
+                Logger::LogError("Install command failed. Need sudo?");
                 return;
             }
         }
@@ -345,7 +345,7 @@ void XMake::Uninstall()
 
             if (!ExecuteCommand(command))
             {
-                Logger::LogError("Error: Uninstall command failed.");
+                Logger::LogError("Uninstall command failed.");
                 return;
             }
         }
