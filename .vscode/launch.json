@@ -84,7 +84,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/.bin/Debug/xmake",
-            "args": ["test/xmakefile.json", "-v"],
+            "args": ["~/workspace_pc/NewLibrary/xit.Window/test/xmakefile.json", "-v"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

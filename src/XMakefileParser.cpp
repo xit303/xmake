@@ -578,7 +578,6 @@ bool XMakefileParser::CheckFileModifications(const std::vector<std::string> &fil
         std::filesystem::path filePath(file);
         if (!std::filesystem::exists(filePath))
         {
-            std::cerr << "Error: " << fileType << " file does not exist: " << file << std::endl;
             continue;
         }
 
@@ -596,8 +595,7 @@ bool XMakefileParser::CheckFileModifications(const std::vector<std::string> &fil
         // Check if the last write time is different from the last build time
         if (lastWriteTime > lastBuildTime)
         {
-            if (verbose)
-                std::cout << fileType << " file changed: " << file << std::endl;
+            Logger::LogVerbose(fileType + " file changed: " + file);
             return true; // File has changed
         }
     }

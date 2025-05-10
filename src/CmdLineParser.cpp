@@ -209,7 +209,6 @@ std::string CmdLineParser::Find(const std::string &option) const
         return it->second;
     }
     // If no match is found, return an empty string
-    Logger::LogWarning("Option " + option + " not found.");
     return "";
 }
 
