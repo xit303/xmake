@@ -186,6 +186,33 @@ void CmdLineParser::RegisterOption(const std::string &option, const std::string 
     }
 }
 
+std::string CmdLineParser::Find(const std::string &option) const
+{
+    auto it = std::find_if(options.begin(), options.end(),
+                           [&option](const auto &pair)
+                           {
+                               // check if first contains the option string within
+                               return pair.first.find(option) != std::string::npos;
+                           });
+    if (it != options.end())
+    {
+        return it->first;
+    }
+    it = std::find_if(options.begin(), options.end(),
+                      [&option](const auto &pair)
+                      {
+                          // check if second contains the option string within
+                          return pair.second.find(option) != std::string::npos;
+                      });
+    if (it != options.end())
+    {
+        return it->second;
+    }
+    // If no match is found, return an empty string
+    Logger::LogWarning("Option " + option + " not found.");
+    return "";
+}
+
 void CmdLineParser::PrintHelp() const
 {
     PrintVersion();

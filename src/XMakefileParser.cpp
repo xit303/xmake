@@ -31,7 +31,7 @@ bool XMakefileParser::Parse(const std::string &path)
         std::ifstream file(xmakefilePath);
         if (!file.is_open())
         {
-            Logger::LogError("Could not open xmakefile: " + xmakefilePath + ". Place an xmakefile into this directory or use --xmakefile /path/to/file");
+            Logger::LogError("Could not open xmakefile: " + xmakefilePath + ". Place an xmakefile into this directory or use /path/to/xmakefile.json");
             return false;
         }
 

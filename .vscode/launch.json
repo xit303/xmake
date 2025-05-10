@@ -84,13 +84,13 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/.bin/Debug/xmake",
-            "args": ["--xmakefile", "test/xmakefile.json", "-v"],
+            "args": ["test/xmakefile.json", "-v"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            // "preLaunchTask": "xmake debug",
+            "preLaunchTask": "xmake debug",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

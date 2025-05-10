@@ -37,6 +37,7 @@ public:
     std::vector<std::string> GetOptionValues(const std::string &option) const;
 
     void RegisterOption(const std::string &option, const std::string &description, bool hasArgs = false);
+    std::string Find(const std::string &option) const;
     void PrintHelp() const;
     void PrintVersion() const;
 };

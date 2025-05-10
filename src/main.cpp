@@ -16,9 +16,9 @@
 int main(int argc, char **argv)
 {
     CmdLineParser parser("xmake", "xit's little make tool", VERSION_STRING);
+    parser.SetUsage("xmake test/xmakefile.json] [options]");
     parser.RegisterOption("--help", "Show help message");
     parser.RegisterOption("--version", "Show version information");
-    parser.RegisterOption("--xmakefile", "Path to the xmakefile to use", true);
     parser.RegisterOption("--config", "Configuration to use (default: first one in xmakefile)", true);
     parser.RegisterOption("--print_env", "Print environment variables");
     parser.RegisterOption("-v", "Enable verbose output");
@@ -51,15 +51,15 @@ int main(int argc, char **argv)
         Logger::LogInfo("Verbose mode enabled");
     }
 
-    std::string xmakefilePath = std::filesystem::current_path().string() + "/xmakefile.json";
+    std::string xmakefilePath = parser.Find("xmakefile.json");
 
-    if (parser.IsOptionSet("--xmakefile"))
+    if (!xmakefilePath.empty())
     {
-        xmakefilePath = parser.GetOptionValue("--xmakefile", xmakefilePath);
         Logger::LogVerbose("Using xmakefile: " + xmakefilePath);
     }
     else
     {
+        xmakefilePath = std::filesystem::current_path().string() + "/xmakefile.json";
         Logger::LogVerbose("No xmakefile specified, using default.");
     }
 
