@@ -28,13 +28,16 @@ OBJECT_DIR = $(BIN_DIR)/Debug
 
 INCLUDES := \
 	-Iinclude \
+	-Ilib/CommandLineParser/include \
 	-Ilib/ArduinoJson/src
 
 ################################################################################
 # Source Files
 ################################################################################
 
-SRC_DIRS = 	src 
+SRC_DIRS = \
+	src \
+	lib/CommandLineParser/src
 
 SRCS = $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.cpp) $(wildcard $(dir)/*.c) $(wildcard $(dir)/*.s))
 

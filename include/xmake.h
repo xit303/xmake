@@ -4,7 +4,7 @@
 // Includes
 //**************************************************************
 
-#include "CommandLineParser/CmdLineParser.h"
+#include <CmdLineParser.h>
 #include "XMakefileParser.h"
 #include <atomic>
 #include <filesystem>
