@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "Version.h"
-#include "CmdLineParser.h"
+#include "CommandLineParser/CmdLineParser.h"
 #include "xmake.h"
 #include <filesystem>
 #include <Logger.h>
