@@ -32,7 +32,7 @@ std::string XMakefileConfig::ResolvePath(const std::string &path, const std::str
         resolvedPath = std::filesystem::weakly_canonical(resolvedPath);
         return resolvedPath.string();
     }
-    else if (IsRelativePath(path) && !path.starts_with(basePath))
+    else if (IsRelativePath(path) && !path.starts_with(basePath) && !basePath.empty())
     {
         return (std::filesystem::path(basePath) / path).lexically_normal().string();
     }
@@ -98,7 +98,7 @@ void XMakefileConfig::FromJSON(const JsonVariant &doc, const std::string &basePa
     JsonArray libraries = doc["libraries"].as<JsonArray>();
     for (JsonVariant lib : libraries)
     {
-        Libraries.push_back(lib.as<std::string>());
+        Libraries.push_back(ResolvePath(lib.as<std::string>(), ""));
     }
 
     // Extract pre_build_commands
