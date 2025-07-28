@@ -3,7 +3,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/include/",
+                "${workspaceFolder}/lib/ArduinoJson/src/"
             ],
             "defines": [
                 "DEBUG"
@@ -16,7 +17,8 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/include/",
+                "${workspaceFolder}/lib/ArduinoJson/src/"
             ],
             "defines": [
                 "DEBUG"
