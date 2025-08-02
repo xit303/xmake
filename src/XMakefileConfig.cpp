@@ -39,6 +39,32 @@ std::string XMakefileConfig::ResolvePath(const std::string &path, const std::str
     return path;
 }
 
+std::string XMakefileConfig::ResolveLibraryPath(const std::string &path, const std::string &basePath)
+{
+    // check if path is just a filename
+    // If the path is just a filename (no directory components), return it as-is
+    if (path.find('/') == std::string::npos && path.find('\\') == std::string::npos && path.find(':') == std::string::npos)
+    {
+        return path;
+    }
+
+    if (IsParentDirectoryTraversalPath(path))
+    {
+        std::filesystem::path base(basePath);
+        std::filesystem::path relativePath = path;
+
+        // Resolve "../" in the relative path
+        std::filesystem::path resolvedPath = base / relativePath;
+        resolvedPath = std::filesystem::weakly_canonical(resolvedPath);
+        return resolvedPath.string();
+    }
+    else if (IsRelativePath(path) && !path.starts_with(basePath) && !basePath.empty())
+    {
+        return (std::filesystem::path(basePath) / path).lexically_normal().string();
+    }
+    return path;
+}
+
 void XMakefileConfig::FromJSON(const JsonVariant &doc, const std::string &basePath)
 {
     Name = doc["name"].as<std::string>();
@@ -98,7 +124,7 @@ void XMakefileConfig::FromJSON(const JsonVariant &doc, const std::string &basePa
     JsonArray libraries = doc["libraries"].as<JsonArray>();
     for (JsonVariant lib : libraries)
     {
-        Libraries.push_back(ResolvePath(lib.as<std::string>(), ""));
+        Libraries.push_back(ResolveLibraryPath(lib.as<std::string>(), tmpPath));
     }
 
     // Extract pre_build_commands

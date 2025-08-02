@@ -57,6 +57,7 @@ public:
     static bool IsParentDirectoryTraversalPath(const std::string &path);
     static bool IsRelativePath(const std::string &path);
     static std::string ResolvePath(const std::string &path, const std::string &basePath);
+    static std::string ResolveLibraryPath(const std::string &path, const std::string &basePath);
 
     void PrintEnvironmentVariables();
 
