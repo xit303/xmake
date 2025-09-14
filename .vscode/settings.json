@@ -6,29 +6,6 @@
         "tab.activeBorder": "#ffffff",
         "tab.activeBorderTop": "#ffffff"
     },
-    "github.copilot.chat.codeGeneration.instructions": [
-        {
-            "text": "Performance and stability are crucial. uses ArduinoJson v7.2.0."
-        },
-        {
-            "text": "Use camelCase for class fields and local variables; CamelCase for structure fields."
-        },
-        {
-            "text": "Use UpperCaseCamelCase for functions/methods."
-        },
-        {
-            "text": "Use google test for tests; create many, considering data types and variables."
-        },
-        {
-            "text": "Explain based on skill levels in .vscode/coding-skills.json; use concise sentences."
-        },
-        {
-            "file": ".vscode/coding-skills.json"
-        },
-        {
-            "text": "Ensure all code follows the specified naming conventions and testing guidelines."
-        }
-    ],
     "github.copilot.chat.commitMessageGeneration.instructions": [
         {
             "text": "Use conventional commit message format."
