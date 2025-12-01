@@ -67,10 +67,12 @@
             "linker_flags": "-lm -lstdc++",
             "include_paths": [
                 "include",
+                "lib/CommandLineParser/include",
                 "lib/ArduinoJson/src"
             ],
             "source_paths": [
-                "src/"
+                "src/",
+                "lib/CommandLineParser/src"
             ],
             "exclude_paths": [],
             "exclude_files": [],
