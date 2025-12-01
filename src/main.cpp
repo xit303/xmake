@@ -96,6 +96,7 @@ int main(int argc, char **argv)
     if (parser.IsOptionSet("--print_env"))
     {
         xmake.PrintEnvironmentVariables();
+        return 0;
     }
 
     // measure build time
