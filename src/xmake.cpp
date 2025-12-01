@@ -18,7 +18,7 @@ XMake::XMake(const CmdLineParser &cmdLineParser) : cmdLineParser(cmdLineParser)
         verbose = true;
     }
 
-    selectedConfig = cmdLineParser.GetOptionValue("--config", "");
+    selectedConfig = cmdLineParser.GetOptionValue("-c", "");
 }
 
 bool XMake::Init(const std::string &makefileName)

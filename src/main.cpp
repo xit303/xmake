@@ -14,14 +14,14 @@
 
 int main(int argc, char **argv)
 {
-    CmdLineParser parser("xmake", "xit's little make tool", VERSION_STRING);
-    parser.SetUsage("xmake test/xmakefile.json] [options]");
-    parser.RegisterOption("--help", "Show help message");
+    CmdLineParser parser("xmake", "xit's little build tool", VERSION_STRING);
+    parser.SetUsage("xmake [options]");
+    parser.RegisterOption("-h", "Show help message");
     parser.RegisterOption("--version", "Show version information");
-    parser.RegisterOption("--config", "Configuration to use (default: first one in xmakefile)", true);
-    parser.RegisterOption("--print_env", "Print environment variables");
+    parser.RegisterOption("-c", "Configuration to use (default: first one in xmakefile)", true);
     parser.RegisterOption("-v", "Enable verbose output");
-    parser.RegisterOption("-j", "Number of jobs to run simultaneously");
+    parser.RegisterOption("-j", "Number of jobs to run simultaneously", true);
+    parser.RegisterOption("--print_env", "Print environment variables");
     parser.RegisterOption("clean", "Clean all build files (clean_commands needs to be set in xmakefile)");
     parser.RegisterOption("run", "Run the output file after building");
     parser.RegisterOption("install", "Install the output file");
