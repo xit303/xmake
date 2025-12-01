@@ -285,7 +285,7 @@ void XMake::Run()
     }
 
     // Execute the output file
-    std::string runCommand = "./" + config.OutputDir + "/" + config.OutputFilename;
+    std::string runCommand = config.OutputDir + "/" + config.OutputFilename;
     if (!ExecuteCommand(runCommand))
     {
         Logger::LogError("Failed to run the output file.");
