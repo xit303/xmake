@@ -92,6 +92,9 @@ bool XMake::Build()
     if (cmdLineParser.IsOptionSet("-j"))
     {
         std::string jValue = cmdLineParser.GetOptionValue("-j");
+
+        Logger::LogVerbose("Using -j option with value: " + jValue);
+
         if (!jValue.empty())
         {
             try
