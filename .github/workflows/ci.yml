@@ -35,18 +35,16 @@ jobs:
         
     - name: Build Release configuration
       run: |
-        ./.bin/xmake clean -c Release
         ./.bin/xmake -c Release
         
     - name: Build and run tests
       run: |
-        ./.bin/xmake clean -c Test
         ./.bin/xmake -c Test
         ./.bin/Test/test_xmake
         
-    - name: Check for compiler warnings
+    - name: Check for compiler warnings (rebuild Debug)
       run: |
-        ./.bin/xmake clean -c Debug
+        rm -rf .bin/Debug
         ./.bin/xmake -c Debug 2>&1 | tee build.log
         if grep -i "warning:" build.log; then
           echo "Build contains warnings!"
