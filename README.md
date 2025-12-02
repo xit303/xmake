@@ -1,5 +1,7 @@
 # xmake
 
+[![CI](https://github.com/xit303/xmake/actions/workflows/ci.yml/badge.svg)](https://github.com/xit303/xmake/actions/workflows/ci.yml)
+
 This repository contains a small C/C++ build tool named `xmake` (not the popular xmake.io project). It reads `xmakefile.json` and builds targets via a simple Makefile. This README explains how to download, build, install, and use it on Linux.
 
 ## Overview
