@@ -17,30 +17,35 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y g++ make
+        sudo apt-get install -y g++ make libgtest-dev
         
-    - name: Build xmake (Debug)
+    - name: Bootstrap xmake (build with make)
       run: |
-        xmake -c Debug
+        make
         
-    - name: Build xmake (Release)
+    - name: Verify bootstrap build
       run: |
-        xmake clean -c Release
-        xmake -c Release
+        ./.bin/Release/xmake --version
         
-    - name: Build tests
+    - name: Build Debug configuration
       run: |
-        xmake clean -c Test
-        xmake -c Test
+        ./.bin/Release/xmake -c Debug
         
-    - name: Run tests
+    - name: Build Release configuration
       run: |
+        ./.bin/Release/xmake clean -c Release
+        ./.bin/Release/xmake -c Release
+        
+    - name: Build and run tests
+      run: |
+        ./.bin/Release/xmake clean -c Test
+        ./.bin/Release/xmake -c Test
         ./.bin/Test/test_xmake
         
     - name: Check for compiler warnings
       run: |
-        xmake clean -c Debug
-        xmake -c Debug 2>&1 | tee build.log
+        ./.bin/Release/xmake clean -c Debug
+        ./.bin/Release/xmake -c Debug 2>&1 | tee build.log
         if grep -i "warning:" build.log; then
           echo "Build contains warnings!"
           exit 1
@@ -49,6 +54,6 @@ jobs:
         
     - name: Test installation
       run: |
-        sudo xmake install -c Release
+        sudo ./.bin/Release/xmake install -c Release
         which xmake
         xmake --version
