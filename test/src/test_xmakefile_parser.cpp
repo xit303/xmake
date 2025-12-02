@@ -700,7 +700,7 @@ TEST_F(XMakefileParserTest, ExcludePaths)
             "library_paths": [],
             "libraries": [],
             "source_paths": ["src"],
-            "exclude_paths": ["test"],
+            "exclude_paths": ["src/test"],
             "exclude_files": [],
             "pre_build_commands": [],
             "post_build_commands": [],
@@ -722,10 +722,14 @@ TEST_F(XMakefileParserTest, ExcludePaths)
     parser.CreateBuildList();
     
     const std::vector<BuildStruct>& buildStructures = parser.GetBuildStructures();
-    // Exclude paths filter during directory traversal
-    // Both files may be found if exclude pattern doesn't match exactly
-    EXPECT_GE(buildStructures.size(), 1);
+    // Should only find main.cpp, not the excluded file
+    EXPECT_EQ(buildStructures.size(), 1);
     EXPECT_TRUE(buildStructures[0].sourceFile.find("main.cpp") != std::string::npos);
+    
+    // Verify excluded file is not in the build list
+    for (const auto& build : buildStructures) {
+        EXPECT_TRUE(build.sourceFile.find("excluded.cpp") == std::string::npos);
+    }
 }
 
 // Test with exclude files
