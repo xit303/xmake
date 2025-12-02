@@ -15,6 +15,8 @@ class XMakefile
 public:
     std::vector<XMakefileConfig> configs;
 
+    XMakefile() : configs() {}
+
     void FromJSON(const JsonVariant &doc, const std::string &basePath)
     {
         // Extract configurations

@@ -22,6 +22,8 @@ struct BuildStruct
     std::string objectFile;
     std::string sourceFile;
 
+    BuildStruct() : buildString(), objectFile(), sourceFile() {}
+
     bool empty() const
     {
         return buildString.empty() && objectFile.empty();

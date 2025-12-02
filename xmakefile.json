@@ -12,7 +12,7 @@
             "archiver": "ar",
             "archiver_flags": "rcs",
             "c_flags": "-std=c11 -Wall -Wextra -pedantic",
-            "cxx_flags": "-g -std=c++23 -Wall -Wextra -pedantic -ffunction-sections -fdata-sections -MMD -O0",
+            "cxx_flags": "-g -std=c++23 -Wall -Wextra -pedantic -ffunction-sections -fdata-sections -Wuninitialized -Wmaybe-uninitialized -Wconversion -Wnull-dereference -Wdouble-promotion -Weffc++ -Winit-self -Wstrict-aliasing -MMD -fPIC -O0",
             "linker_flags": "-lm -lstdc++",
             "defines": [
                 "DEBUG"
@@ -97,6 +97,52 @@
             ],
             "clean_commands": [
                 "rm -rf .bin"
+            ]
+        },
+        {
+            "name": "Test",
+            "build_types": "Options are: Executable, StaticLibrary, SharedLibrary",
+            "build_type": "Executable",
+            "build_dir": ".bin",
+            "output_filename": "test_xmake",
+            "compiler_path": "",
+            "compiler": "g++",
+            "linker": "g++",
+            "archiver": "ar",
+            "archiver_flags": "rcs",
+            "c_flags": "-std=c++23 -Wall -Wextra -pedantic -fPIC",
+            "cxx_flags": "-g -std=c++23 -Wall -Wextra -pedantic -ffunction-sections -fdata-sections -Wuninitialized -Wmaybe-uninitialized -Wconversion -Wnull-dereference -Wdouble-promotion -Weffc++ -Winit-self -Wstrict-aliasing -MMD -fPIC -O0",
+            "linker_flags": "-lm -lstdc++ -lgtest -lpthread",
+            "defines": [],
+            "include_paths": [
+                "include",
+                "lib/CommandLineParser/include",
+                "lib/ArduinoJson/src",
+                "test/include"
+            ],
+            "source_paths": [
+                "src/",
+                "lib/CommandLineParser/src",
+                "test/src/"
+            ],
+            "exclude_paths": [],
+            "exclude_files": [
+                "src/main.cpp"
+            ],
+            "library_paths": [],
+            "libraries": [],
+            "pre_build_commands": [],
+            "post_build_commands": [],
+            "pre_run_commands": [
+                "echo 'Running Tests...'"
+            ],
+            "post_run_commands": [
+                "echo 'Tests completed!'"
+            ],
+            "install_commands": [],
+            "uninstall_commands": [],
+            "clean_commands": [
+                "rm -rf ${build_dir}"
             ]
         }
     ]

@@ -10,6 +10,38 @@
 // Classes
 //**************************************************************
 
+XMakefileConfig::XMakefileConfig()
+    : envVars(),
+      Name(),
+      BuildType(),
+      BuildDir(),
+      OutputDir(),
+      OutputFilename(),
+      CompilerPath(),
+      Compiler(),
+      CCompilerFlags(),
+      CXXCompilerFlags(),
+      Linker(),
+      LinkerFlags(),
+      Archiver(),
+      ArchiverFlags(),
+      Defines(),
+      IncludePaths(),
+      LibraryPaths(),
+      Libraries(),
+      SourcePaths(),
+      ExcludePaths(),
+      ExcludeFiles(),
+      PreBuildCommands(),
+      PostBuildCommands(),
+      PreRunCommands(),
+      PostRunCommands(),
+      InstallCommands(),
+      UninstallCommands(),
+      CleanCommands()
+{
+}
+
 bool XMakefileConfig::IsParentDirectoryTraversalPath(const std::string &path)
 {
     return path[0] == '.' && path[1] == '.' && path[2] == '/';

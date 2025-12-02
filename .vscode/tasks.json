@@ -6,7 +6,7 @@
             "type": "shell",
             "command": "xmake",
             "args": [
-                "--config",
+                "-c",
                 "Debug"
             ],
             "group": {
@@ -20,7 +20,7 @@
             "type": "shell",
             "command": "xmake",
             "args": [
-                "--config",
+                "-c",
                 "Release"
             ],
             "group": {
@@ -35,6 +35,19 @@
             "command": "xmake",
             "args": [
                 "clean"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "xmake test",
+            "type": "shell",
+            "command": "xmake",
+            "args": [
+                "-c", "Test", "&&", "xmake", "-c", "Test", "run"
             ],
             "group": {
                 "kind": "build",

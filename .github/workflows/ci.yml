@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+      
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y g++ make libgtest-dev
+        
+    - name: Bootstrap xmake (build with make)
+      run: |
+        make
+        
+    - name: Verify bootstrap build
+      run: |
+        ./.bin/xmake --version
+        
+    - name: Build Debug configuration
+      run: |
+        ./.bin/xmake -c Debug
+        
+    - name: Build Release configuration
+      run: |
+        ./.bin/xmake -c Release
+        
+    - name: Build and run tests
+      run: |
+        ./.bin/xmake -c Test
+        ./.bin/Test/test_xmake
+        
+    - name: Check for compiler warnings (rebuild Debug)
+      run: |
+        rm -rf .bin/Debug
+        ./.bin/xmake -c Debug 2>&1 | tee build.log
+        if grep -i "warning:" build.log; then
+          echo "Build contains warnings!"
+          exit 1
+        fi
+        echo "No warnings found!"
+        
+    - name: Test installation
+      run: |
+        sudo ./.bin/xmake install -c Release
+        which xmake
+        xmake --version

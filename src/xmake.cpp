@@ -10,15 +10,12 @@
 // Public functions
 //**************************************************************
 
-XMake::XMake(const CmdLineParser &cmdLineParser) : cmdLineParser(cmdLineParser)
+XMake::XMake(const CmdLineParser &cmdLineParser)
+    : parser(),
+      cmdLineParser(cmdLineParser),
+      selectedConfig(cmdLineParser.GetOptionValue("-c", "")),
+      verbose(cmdLineParser.IsOptionSet("-v"))
 {
-    // Check if verbose option is set
-    if (cmdLineParser.IsOptionSet("-v"))
-    {
-        verbose = true;
-    }
-
-    selectedConfig = cmdLineParser.GetOptionValue("-c", "");
 }
 
 bool XMake::Init(const std::string &makefileName)

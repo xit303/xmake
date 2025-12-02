@@ -16,6 +16,21 @@
 //**************************************************************
 
 XMakefileParser::XMakefileParser()
+    : verbose(false),
+      xmakefilePath(),
+      xmakefileContent(),
+      xmakefileName(),
+      xmakefileDir(),
+      buildStructureIndex(0),
+      sourceFiles(),
+      headerFiles(),
+      libraryFiles(),
+      buildStructures(),
+      linkString(),
+      lastModifiedTimes(),
+      jsonDoc(),
+      xmakefile(),
+      currentConfig()
 {
 }
 
@@ -547,7 +562,7 @@ void XMakefileParser::FindFiles(const std::string &path, const std::vector<std::
             {
                 for (const auto &excludeFile : currentConfig.ExcludeFiles)
                 {
-                    if (entry.path().filename() == excludeFile)
+                    if ((entry.path().filename() == excludeFile) || (entry.path().string() == excludeFile))
                     {
                         isExcluded = true;
                         break;
