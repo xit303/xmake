@@ -54,6 +54,8 @@ public:
     std::vector<std::string> UninstallCommands;
     std::vector<std::string> CleanCommands;
 
+    XMakefileConfig();
+
     static bool IsParentDirectoryTraversalPath(const std::string &path);
     static bool IsRelativePath(const std::string &path);
     static std::string ResolvePath(const std::string &path, const std::string &basePath);

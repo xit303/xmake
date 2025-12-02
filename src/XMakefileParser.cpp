@@ -16,6 +16,21 @@
 //**************************************************************
 
 XMakefileParser::XMakefileParser()
+    : verbose(false),
+      xmakefilePath(),
+      xmakefileContent(),
+      xmakefileName(),
+      xmakefileDir(),
+      buildStructureIndex(0),
+      sourceFiles(),
+      headerFiles(),
+      libraryFiles(),
+      buildStructures(),
+      linkString(),
+      lastModifiedTimes(),
+      jsonDoc(),
+      xmakefile(),
+      currentConfig()
 {
 }
 
