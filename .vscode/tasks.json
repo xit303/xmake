@@ -6,7 +6,7 @@
             "type": "shell",
             "command": "xmake",
             "args": [
-                "--config",
+                "-c",
                 "Debug"
             ],
             "group": {
@@ -20,7 +20,7 @@
             "type": "shell",
             "command": "xmake",
             "args": [
-                "--config",
+                "-c",
                 "Release"
             ],
             "group": {
