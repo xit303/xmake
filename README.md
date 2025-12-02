@@ -248,16 +248,16 @@ output_filename=/home/xit/workspace/xmake/xmake
 This repository includes a `test/` directory with its own `xmakefile.json`. To run the tests, you can use xmake directly after building it like so:
 
 ```bash
-.bin/xmake test/xmakefile.json && .bin/xmake test/xmakefile.json run
+.bin/xmake -c Test && .bin/xmake -c Test run
 ```
 
 or
 
 ```bash
-xmake test/xmakefile.json && xmake test/xmakefile.json run
+xmake -c Test && xmake -c Test run
 ```
 
-This will invoke `xmake` within the `test/` directory.
+This will invoke `xmake` within the `./bin/test/` directory.
 
 If you add unit tests, prefer Google Test as per project standards. Write tests under `test/src/`. There is no need to modify the `xmakefile.json` when adding tests, as the test `xmakefile.json` will read all source files under `test/src/` automatically.
 
