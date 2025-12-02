@@ -41,6 +41,19 @@
                 "isDefault": true
             },
             "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "xmake test",
+            "type": "shell",
+            "command": "xmake",
+            "args": [
+                "-c", "Test", "&&", "xmake", "-c", "Test", "run"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"]
         }
     ]
 }
