@@ -27,27 +27,27 @@ jobs:
         
     - name: Verify bootstrap build
       run: |
-        ./.bin/Release/xmake --version
+        ./.bin/xmake --version
         
     - name: Build Debug configuration
       run: |
-        ./.bin/Release/xmake -c Debug
+        ./.bin/xmake -c Debug
         
     - name: Build Release configuration
       run: |
-        ./.bin/Release/xmake clean -c Release
-        ./.bin/Release/xmake -c Release
+        ./.bin/xmake clean -c Release
+        ./.bin/xmake -c Release
         
     - name: Build and run tests
       run: |
-        ./.bin/Release/xmake clean -c Test
-        ./.bin/Release/xmake -c Test
+        ./.bin/xmake clean -c Test
+        ./.bin/xmake -c Test
         ./.bin/Test/test_xmake
         
     - name: Check for compiler warnings
       run: |
-        ./.bin/Release/xmake clean -c Debug
-        ./.bin/Release/xmake -c Debug 2>&1 | tee build.log
+        ./.bin/xmake clean -c Debug
+        ./.bin/xmake -c Debug 2>&1 | tee build.log
         if grep -i "warning:" build.log; then
           echo "Build contains warnings!"
           exit 1
@@ -56,6 +56,6 @@ jobs:
         
     - name: Test installation
       run: |
-        sudo ./.bin/Release/xmake install -c Release
+        sudo ./.bin/xmake install -c Release
         which xmake
         xmake --version
